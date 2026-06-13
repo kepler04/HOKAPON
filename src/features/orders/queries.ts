@@ -31,6 +31,44 @@ export async function getPublicOrderByNumber(
   return (data as OrderDetail | null) ?? null;
 }
 
+function digitsOnly(value: string) {
+  return value.replace(/\D/g, "");
+}
+
+function contactMatches(order: OrderDetail, contact: string) {
+  const normalizedContact = contact.trim().toLowerCase();
+  const contactDigits = digitsOnly(contact);
+  const emailMatches =
+    !!order.customer_email &&
+    order.customer_email.trim().toLowerCase() === normalizedContact;
+
+  const orderPhoneDigits = digitsOnly(order.customer_phone ?? "");
+  const phoneMatches =
+    contactDigits.length >= 6 &&
+    orderPhoneDigits.length >= 6 &&
+    (orderPhoneDigits.endsWith(contactDigits) ||
+      contactDigits.endsWith(orderPhoneDigits));
+
+  return emailMatches || phoneMatches;
+}
+
+/**
+ * Public tracking lookup. Requires both the order number and the buyer's email
+ * or phone before returning details, so a guessed order number is not enough to
+ * view customer/order data.
+ */
+export async function getPublicOrderForTracking({
+  orderNumber,
+  contact,
+}: {
+  orderNumber: string;
+  contact: string;
+}): Promise<OrderDetail | null> {
+  const order = await getPublicOrderByNumber(orderNumber.trim());
+  if (!order || !contactMatches(order, contact)) return null;
+  return order;
+}
+
 /**
  * Order reads (admin only — RLS restricts these to staff).
  */

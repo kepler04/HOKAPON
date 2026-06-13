@@ -3,6 +3,17 @@ import { ORDER_STATUSES, ORDER_STATUS_ORDER } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import type { OrderStatus } from "@/features/orders/types";
 
+const STEP_DESCRIPTIONS: Record<OrderStatus, string> = {
+  pendiente: "Recibimos tu pedido y estamos esperando que realices el pago.",
+  esperando_pago:
+    "Puedes pagar con los metodos disponibles y enviarnos el comprobante.",
+  pago_enviado: "Recibimos tu comprobante y lo estamos revisando.",
+  pago_confirmado: "El pago fue validado correctamente.",
+  en_preparacion: "Estamos preparando tu pedido para la entrega.",
+  entregado: "Tu pedido fue entregado. Gracias por comprar en HOKAPON.",
+  cancelado: "Este pedido fue cancelado.",
+};
+
 /**
  * Vertical progress timeline for an order status.
  * Walks ORDER_STATUS_ORDER, marking steps done/current/upcoming. A cancelled
@@ -16,7 +27,7 @@ export function OrderTimeline({ status }: { status: OrderStatus }) {
         <div>
           <p className="font-bold">Pedido cancelado</p>
           <p className="text-sm text-destructive/80">
-            Si crees que es un error, escríbenos por WhatsApp.
+            Si crees que es un error, escribenos por WhatsApp.
           </p>
         </div>
       </div>
@@ -35,7 +46,6 @@ export function OrderTimeline({ status }: { status: OrderStatus }) {
 
         return (
           <li key={step} className="relative flex gap-4">
-            {/* Connector line */}
             {!isLast && (
               <span
                 aria-hidden
@@ -45,14 +55,15 @@ export function OrderTimeline({ status }: { status: OrderStatus }) {
                 )}
               />
             )}
-            {/* Dot */}
             <span
               className={cn(
                 "relative z-10 grid h-8 w-8 shrink-0 place-items-center rounded-full border-2 transition-colors",
                 done && "border-accent bg-accent text-accent-foreground",
                 current &&
                   "border-accent bg-accent/15 text-accent ring-4 ring-accent/15",
-                !done && !current && "border-border bg-card text-muted-foreground",
+                !done &&
+                  !current &&
+                  "border-border bg-card text-muted-foreground",
               )}
             >
               {done ? (
@@ -66,21 +77,27 @@ export function OrderTimeline({ status }: { status: OrderStatus }) {
                 />
               )}
             </span>
-            {/* Label */}
-            <div className="pt-1">
+            <div className="pt-0.5">
               <p
                 className={cn(
                   "font-semibold leading-tight",
-                  current ? "text-accent" : done ? "text-foreground" : "text-muted-foreground",
+                  current
+                    ? "text-accent"
+                    : done
+                      ? "text-foreground"
+                      : "text-muted-foreground",
                 )}
               >
                 {meta.label}
               </p>
-              {current && (
-                <p className="mt-0.5 text-sm text-muted-foreground">
-                  Estado actual de tu pedido.
-                </p>
-              )}
+              <p
+                className={cn(
+                  "mt-1 max-w-md text-sm",
+                  current ? "text-foreground" : "text-muted-foreground",
+                )}
+              >
+                {STEP_DESCRIPTIONS[step]}
+              </p>
             </div>
           </li>
         );

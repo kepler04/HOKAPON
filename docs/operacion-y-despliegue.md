@@ -226,6 +226,31 @@ Muestra:
 - Boton de WhatsApp con mensaje prellenado.
 - Link a seguimiento.
 
+## Seguimiento de Pedido
+
+Ruta:
+
+```text
+/seguimiento
+```
+
+El cliente ingresa:
+
+- Numero de pedido.
+- Correo o telefono usado en la compra.
+
+Si ambos coinciden con el pedido, se muestra:
+
+- Estado actual.
+- Timeline completo.
+- Fecha de creacion.
+- Total.
+- Productos con imagen.
+- Boton de WhatsApp con mensaje de consulta.
+
+El lookup publico esta protegido por contacto: `getPublicOrderForTracking`
+requiere numero de pedido y correo/telefono coincidente.
+
 ## Migraciones
 
 Todas las migraciones estan en:

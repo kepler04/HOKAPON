@@ -120,6 +120,22 @@ Al confirmar pedido:
 
 Esto evita que se vea una pantalla intermedia de checkout vacio.
 
+## Seguimiento de Pedido
+
+Ruta:
+
+```text
+/seguimiento
+```
+
+El cliente debe ingresar:
+
+- Numero de pedido.
+- Correo o telefono usado en la compra.
+
+La pagina muestra estado actual, timeline, total, productos y boton de WhatsApp.
+El contacto es obligatorio para no exponer un pedido solo por adivinar el numero.
+
 ## Vercel
 
 Cada push a `main` despliega en Vercel si el proyecto esta conectado al repo.
