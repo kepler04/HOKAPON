@@ -35,6 +35,9 @@ yarn-error.log*
 *.log
 dev-server.log
 
+# local secrets helper (contains real env values)
+VERCEL_ENV.txt
+
 # supabase
 /supabase/.branches
 /supabase/.temp
