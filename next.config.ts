@@ -3,9 +3,10 @@ import type { NextConfig } from "next";
 /**
  * Next.js 15 configuration.
  *
- * `images.remotePatterns` must include the Supabase Storage host so that
- * <Image /> can serve product images. The host is derived from
- * NEXT_PUBLIC_SUPABASE_URL at build time.
+ * `images.remotePatterns` allows <Image /> to serve product images from
+ * Supabase Storage. We match any *.supabase.co host (public storage path) so
+ * this works regardless of whether NEXT_PUBLIC_SUPABASE_URL is available at
+ * the moment next.config is evaluated (it can be empty during build).
  */
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseHost = supabaseUrl ? new URL(supabaseUrl).hostname : undefined;
@@ -13,15 +14,24 @@ const supabaseHost = supabaseUrl ? new URL(supabaseUrl).hostname : undefined;
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   images: {
-    remotePatterns: supabaseHost
-      ? [
-          {
-            protocol: "https",
-            hostname: supabaseHost,
-            pathname: "/storage/v1/object/public/**",
-          },
-        ]
-      : [],
+    remotePatterns: [
+      // Specific project host (if known at build time).
+      ...(supabaseHost
+        ? [
+            {
+              protocol: "https" as const,
+              hostname: supabaseHost,
+              pathname: "/storage/v1/object/public/**",
+            },
+          ]
+        : []),
+      // Fallback: any Supabase project storage host.
+      {
+        protocol: "https" as const,
+        hostname: "*.supabase.co",
+        pathname: "/storage/v1/object/public/**",
+      },
+    ],
   },
   // Security headers (baseline; tightened further in Fase 5).
   async headers() {
