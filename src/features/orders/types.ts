@@ -27,6 +27,9 @@ export interface OrderDetail extends Order {
 export interface OrderFilters {
   status?: OrderStatus;
   search?: string;
+  dateFrom?: string;
+  dateTo?: string;
+  action?: "needs_action";
 }
 
 /** One line item that lacks enough current stock to fulfil the order. */

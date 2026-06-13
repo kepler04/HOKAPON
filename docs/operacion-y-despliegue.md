@@ -136,6 +136,28 @@ yienkid@yienkid.local
 Para entrar al panel el usuario debe tener rol `admin` o `staff` en
 `public.profiles`.
 
+## Admin de Pedidos
+
+Ruta:
+
+```text
+/admin/pedidos
+```
+
+Uso recomendado:
+
+- Usar "Requiere accion" para ver pedidos `pendiente`, `esperando_pago` y
+  `pago_enviado`.
+- Buscar por numero de pedido, nombre, correo o telefono.
+- Filtrar por rango de fechas cuando revises ventas de un dia o semana.
+- Abrir WhatsApp desde la fila para escribir al cliente con el numero de pedido.
+- Copiar el numero de pedido desde la fila cuando se coordine por chat.
+- Avanzar estado desde la fila solo para casos normales.
+
+Regla importante: al avanzar a `pago_confirmado`, la app intenta descontar stock.
+Si no hay stock suficiente, la accion rapida se detiene y debes abrir el detalle
+del pedido para revisar el faltante o confirmar manualmente segun corresponda.
+
 ## Pagos
 
 Ruta admin:

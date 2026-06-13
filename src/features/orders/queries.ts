@@ -82,10 +82,19 @@ export async function getOrders(filters?: OrderFilters): Promise<Order[]> {
     .order("created_at", { ascending: false });
 
   if (filters?.status) query = query.eq("status", filters.status);
+  if (filters?.action === "needs_action") {
+    query = query.in("status", ["pendiente", "esperando_pago", "pago_enviado"]);
+  }
+  if (filters?.dateFrom) {
+    query = query.gte("created_at", `${filters.dateFrom}T00:00:00`);
+  }
+  if (filters?.dateTo) {
+    query = query.lte("created_at", `${filters.dateTo}T23:59:59.999`);
+  }
   if (filters?.search) {
-    // Match by order number or customer name/email.
+    // Match by order number, customer name, email, or phone.
     query = query.or(
-      `order_number.ilike.%${filters.search}%,customer_name.ilike.%${filters.search}%,customer_email.ilike.%${filters.search}%`,
+      `order_number.ilike.%${filters.search}%,customer_name.ilike.%${filters.search}%,customer_email.ilike.%${filters.search}%,customer_phone.ilike.%${filters.search}%`,
     );
   }
 

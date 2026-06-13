@@ -136,6 +136,25 @@ El cliente debe ingresar:
 La pagina muestra estado actual, timeline, total, productos y boton de WhatsApp.
 El contacto es obligatorio para no exponer un pedido solo por adivinar el numero.
 
+## Admin de Pedidos
+
+Ruta:
+
+```text
+/admin/pedidos
+```
+
+La vista v2 incluye:
+
+- Resumen de resultados, pedidos que requieren accion, comprobantes y total filtrado.
+- Busqueda por numero de pedido, cliente, correo o telefono.
+- Filtros por estado, rango de fechas y "Requiere accion".
+- Acciones rapidas por fila: ver detalle, copiar numero, abrir WhatsApp y avanzar estado.
+
+El avance rapido usa la misma Server Action del detalle del pedido. Al pasar a
+`pago_confirmado`, el sistema intenta comprometer stock; si falta stock, obliga
+a revisar el detalle antes de confirmar.
+
 ## Vercel
 
 Cada push a `main` despliega en Vercel si el proyecto esta conectado al repo.
