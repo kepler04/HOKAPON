@@ -1,0 +1,2 @@
+# Cross-feature reusable components not tied to one domain:
+# EmptyState, Price, LoadingSkeleton, Pagination, etc.
