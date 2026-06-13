@@ -94,11 +94,13 @@ export function StatusChanger({
           className="fixed inset-0 z-50 grid place-items-center bg-black/50 p-4"
           role="dialog"
           aria-modal="true"
-          onClick={() => !isPending && setConfirmForce(false)}
+          onMouseDown={(e) => {
+            if (e.target === e.currentTarget && !isPending) setConfirmForce(false);
+          }}
         >
           <div
             className="w-full max-w-md rounded-3xl bg-card p-6 shadow-xl"
-            onClick={(e) => e.stopPropagation()}
+            onMouseDown={(e) => e.stopPropagation()}
           >
             <div className="flex items-start gap-3">
               <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-destructive/15 text-destructive">

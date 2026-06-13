@@ -96,11 +96,13 @@ export function MovementForm({
           className="fixed inset-0 z-50 grid place-items-center bg-black/50 p-4"
           role="dialog"
           aria-modal="true"
-          onClick={() => !isSubmitting && close()}
+          onMouseDown={(e) => {
+            if (e.target === e.currentTarget && !isSubmitting) close();
+          }}
         >
           <div
             className="w-full max-w-md rounded-3xl bg-card p-6 shadow-xl"
-            onClick={(e) => e.stopPropagation()}
+            onMouseDown={(e) => e.stopPropagation()}
           >
             <div className="mb-4 flex items-center justify-between">
               <h2 className="font-display text-lg font-bold">

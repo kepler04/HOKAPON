@@ -30,6 +30,7 @@ export type PaymentMethod = "yape" | "plin" | "transferencia" | "whatsapp";
 export type PaymentStatus = "pendiente" | "confirmado" | "rechazado";
 export type UserRole = "admin" | "staff";
 export type StockMovementType = "entrada" | "salida";
+export type PaymentMethodKind = "wallet" | "bank";
 
 export interface Database {
   // Marker read by supabase-js (>= 2.10x) for PostgREST version-aware typing.
@@ -304,6 +305,40 @@ export interface Database {
           },
         ];
       };
+      payment_methods: {
+        Row: {
+          id: string;
+          kind: PaymentMethodKind;
+          label: string;
+          number: string | null;
+          holder: string | null;
+          bank_name: string | null;
+          account: string | null;
+          cci: string | null;
+          sort_order: number;
+          is_active: boolean;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          kind: PaymentMethodKind;
+          label: string;
+          number?: string | null;
+          holder?: string | null;
+          bank_name?: string | null;
+          account?: string | null;
+          cci?: string | null;
+          sort_order?: number;
+          is_active?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<
+          Database["public"]["Tables"]["payment_methods"]["Insert"]
+        >;
+        Relationships: [];
+      };
       favorites: {
         Row: {
           user_id: string;
@@ -393,3 +428,5 @@ export type StockMovement =
   Database["public"]["Tables"]["stock_movements"]["Row"];
 export type CustomerProfile =
   Database["public"]["Tables"]["customer_profiles"]["Row"];
+export type PaymentMethodConfig =
+  Database["public"]["Tables"]["payment_methods"]["Row"];

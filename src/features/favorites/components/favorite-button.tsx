@@ -92,11 +92,13 @@ export function FavoriteButton({
           className="fixed inset-0 z-50 grid place-items-center bg-black/50 p-4"
           role="dialog"
           aria-modal="true"
-          onClick={() => setShowAuth(false)}
+          onMouseDown={(e) => {
+            if (e.target === e.currentTarget) setShowAuth(false);
+          }}
         >
           <div
             className="w-full max-w-sm rounded-3xl bg-card p-6 text-center shadow-xl"
-            onClick={(e) => e.stopPropagation()}
+            onMouseDown={(e) => e.stopPropagation()}
           >
             <button
               onClick={() => setShowAuth(false)}

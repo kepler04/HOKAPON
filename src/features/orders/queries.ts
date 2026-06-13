@@ -69,6 +69,51 @@ export async function getOrderById(id: string): Promise<OrderDetail | null> {
   return (data as OrderDetail | null) ?? null;
 }
 
+export interface OrderItemWithImage {
+  id: string;
+  product_name: string;
+  quantity: number;
+  unit_price: number;
+  line_total: number;
+  imageUrl: string | null;
+}
+
+/**
+ * Order line items with each product's primary image, for the confirmation
+ * page. Uses the admin client (the order_number is the access token), and only
+ * returns display-safe fields.
+ */
+export async function getPublicOrderItemsWithImages(
+  orderId: string,
+): Promise<OrderItemWithImage[]> {
+  const supabase = createAdminClient();
+  const base = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+  const { data } = await supabase
+    .from("order_items")
+    .select(
+      "id,product_name,quantity,unit_price,line_total,products(product_images(url,is_primary))",
+    )
+    .eq("order_id", orderId);
+
+  return (data ?? []).map((it) => {
+    const product = it.products as {
+      product_images: { url: string; is_primary: boolean }[] | null;
+    } | null;
+    const imgs = product?.product_images ?? [];
+    const primary = imgs.find((i) => i.is_primary) ?? imgs[0];
+    return {
+      id: it.id,
+      product_name: it.product_name,
+      quantity: it.quantity,
+      unit_price: it.unit_price,
+      line_total: it.line_total,
+      imageUrl: primary
+        ? `${base}/storage/v1/object/public/product-images/${primary.url}`
+        : null,
+    };
+  });
+}
+
 /**
  * Stock availability for an order's items (admin only).
  * Compares each line item's quantity against the product's CURRENT stock.

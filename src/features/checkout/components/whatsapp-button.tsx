@@ -34,7 +34,7 @@ export function WhatsAppButton({
     <Button
       asChild
       size="lg"
-      className="w-full bg-[#25D366] text-white hover:bg-[#1ebe5b] shadow-[0_8px_24px_-8px_rgba(37,211,102,0.7)]"
+      className="h-auto min-h-14 w-full rounded-2xl bg-[#25D366] px-5 py-3 text-sm text-white shadow-[0_14px_28px_-12px_rgba(37,211,102,0.9)] hover:bg-[#1ebe5b] sm:text-base"
     >
       <a href={url} target="_blank" rel="noopener noreferrer">
         <MessageCircle className="h-5 w-5" /> Enviar comprobante por WhatsApp
