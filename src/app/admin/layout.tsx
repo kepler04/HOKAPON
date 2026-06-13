@@ -20,8 +20,8 @@ export default async function AdminLayout({
 
   return (
     <div className="min-h-screen bg-background lg:grid lg:grid-cols-[260px_1fr]">
-      {/* Desktop sidebar */}
-      <aside className="sticky top-0 hidden h-screen flex-col border-r border-border bg-card p-5 lg:flex">
+      {/* Desktop sidebar (dark) */}
+      <aside className="sticky top-0 hidden h-screen flex-col bg-[#0d1117] p-5 text-white lg:flex">
         <Link href="/admin" className="mb-8 flex items-center gap-2">
           <span
             className="grid h-9 w-9 place-items-center rounded-2xl bg-accent text-lg"
@@ -29,9 +29,24 @@ export default async function AdminLayout({
           >
             🧸
           </span>
-          <span className="font-display text-lg font-bold">{STORE_NAME}</span>
+          <span className="font-display text-lg font-bold text-white">
+            {STORE_NAME}
+          </span>
         </Link>
         <AdminSidebar />
+
+        {/* User chip at the bottom */}
+        <div className="mt-auto flex items-center gap-3 rounded-2xl bg-white/5 px-3 py-2.5">
+          <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-accent text-sm font-bold text-accent-foreground">
+            {(session.fullName ?? session.email ?? "A").charAt(0).toUpperCase()}
+          </span>
+          <div className="min-w-0">
+            <p className="truncate text-sm font-semibold text-white">
+              {session.fullName ?? session.email ?? "admin"}
+            </p>
+            <p className="text-xs text-white/50">Administrador</p>
+          </div>
+        </div>
       </aside>
 
       {/* Main column */}

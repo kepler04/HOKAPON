@@ -31,6 +31,12 @@ const nextConfig: NextConfig = {
         hostname: "*.supabase.co",
         pathname: "/storage/v1/object/public/**",
       },
+      // Google account avatars (OAuth sign-in).
+      {
+        protocol: "https" as const,
+        hostname: "lh3.googleusercontent.com",
+        pathname: "/**",
+      },
     ],
   },
   // Security headers (baseline; tightened further in Fase 5).

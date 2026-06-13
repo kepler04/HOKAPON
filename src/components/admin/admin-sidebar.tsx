@@ -34,8 +34,8 @@ export function AdminSidebar() {
             className={cn(
               "flex items-center gap-3 rounded-2xl px-4 py-2.5 text-sm font-medium transition-colors",
               active
-                ? "bg-accent text-accent-foreground"
-                : "text-muted-foreground hover:bg-secondary hover:text-foreground",
+                ? "bg-accent text-accent-foreground shadow-[0_8px_24px_-8px_hsl(351_84%_49%/0.6)]"
+                : "text-white/60 hover:bg-white/10 hover:text-white",
             )}
           >
             <Icon className="h-5 w-5 shrink-0" />
@@ -44,7 +44,7 @@ export function AdminSidebar() {
         );
       })}
 
-      <div className="my-3 h-px bg-border" />
+      <div className="my-3 h-px bg-white/10" />
 
       <Link
         href="/admin/tienda"
@@ -52,7 +52,7 @@ export function AdminSidebar() {
           "flex items-center gap-3 rounded-2xl px-4 py-2.5 text-sm font-medium transition-colors",
           pathname.startsWith("/admin/tienda")
             ? "bg-accent text-accent-foreground"
-            : "text-muted-foreground hover:bg-secondary hover:text-foreground",
+            : "text-white/60 hover:bg-white/10 hover:text-white",
         )}
       >
         <Store className="h-5 w-5 shrink-0" />

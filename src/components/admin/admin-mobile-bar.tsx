@@ -24,13 +24,13 @@ export function AdminMobileBar({ storeName }: { storeName: string }) {
             className="absolute inset-0 bg-foreground/40 backdrop-blur-sm"
             onClick={() => setOpen(false)}
           />
-          <aside className="absolute left-0 top-0 h-full w-72 animate-rise bg-card p-5 shadow-2xl">
+          <aside className="absolute left-0 top-0 h-full w-72 animate-rise bg-[#0d1117] p-5 text-white shadow-2xl">
             <div className="mb-6 flex items-center justify-between">
-              <span className="font-display font-bold">{storeName}</span>
+              <span className="font-display font-bold text-white">{storeName}</span>
               <button
                 onClick={() => setOpen(false)}
                 aria-label="Cerrar menú"
-                className="grid h-9 w-9 place-items-center rounded-full hover:bg-secondary"
+                className="grid h-9 w-9 place-items-center rounded-full text-white/70 hover:bg-white/10"
               >
                 <X className="h-5 w-5" />
               </button>

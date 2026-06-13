@@ -44,23 +44,23 @@ const columns: { title: string; links: { label: string; href: string }[] }[] = [
   {
     title: "Ayuda",
     links: [
-      { label: "Centro de ayuda", href: "#" },
-      { label: "Preguntas frecuentes", href: "#" },
+      { label: "Centro de ayuda", href: "/ayuda" },
+      { label: "Preguntas frecuentes", href: "/ayuda#faq" },
       { label: "Seguimiento de pedido", href: "/seguimiento" },
-      { label: "Cambios y devoluciones", href: "#" },
-      { label: "Garantías", href: "#" },
-      { label: "Términos y condiciones", href: "#" },
-      { label: "Políticas de privacidad", href: "#" },
+      { label: "Cambios y devoluciones", href: "/ayuda#devoluciones" },
+      { label: "Garantías", href: "/ayuda#garantias" },
+      { label: "Términos y condiciones", href: "/ayuda#terminos" },
+      { label: "Políticas de privacidad", href: "/ayuda#privacidad" },
     ],
   },
   {
     title: "HOKAPON",
     links: [
-      { label: "Quiénes somos", href: "#" },
-      { label: "Blog", href: "#" },
-      { label: "Trabaja con nosotros", href: "#" },
-      { label: "Términos y condiciones", href: "#" },
-      { label: "Políticas de privacidad", href: "#" },
+      { label: "Quiénes somos", href: "/nosotros" },
+      { label: "Nuestros productos", href: "/productos" },
+      { label: "Envíos", href: "/ayuda#envios" },
+      { label: "Seguir mi pedido", href: "/seguimiento" },
+      { label: "Contáctanos", href: "/ayuda" },
     ],
   },
 ];
@@ -256,11 +256,11 @@ export function Footer() {
             Todos los derechos reservados.
           </p>
           <div className="flex items-center gap-4">
-            <Link href="#" className="hover:text-accent">
+            <Link href="/ayuda#terminos" className="hover:text-accent">
               Términos y condiciones
             </Link>
             <span className="h-3 w-px bg-white/20" />
-            <Link href="#" className="hover:text-accent">
+            <Link href="/ayuda#privacidad" className="hover:text-accent">
               Políticas de privacidad
             </Link>
           </div>

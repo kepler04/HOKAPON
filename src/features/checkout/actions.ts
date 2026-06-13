@@ -1,6 +1,7 @@
 "use server";
 
 import { createAdminClient } from "@/lib/supabase/admin";
+import { createClient } from "@/lib/supabase/server";
 import { checkoutSchema, type CheckoutInput } from "./schemas";
 import type { CreateOrderResult } from "./types";
 
@@ -29,6 +30,19 @@ export async function createOrder(
   const data = parsed.data;
 
   const supabase = createAdminClient();
+
+  // If a customer is logged in, link the order to their account so it shows up
+  // in their purchase history. Guest checkout (no user) stays supported.
+  let userId: string | null = null;
+  try {
+    const authed = await createClient();
+    const {
+      data: { user },
+    } = await authed.auth.getUser();
+    userId = user?.id ?? null;
+  } catch {
+    userId = null;
+  }
 
   // 1. Fetch the real products referenced by the cart.
   const productIds = data.items.map((i) => i.productId);
@@ -73,6 +87,7 @@ export async function createOrder(
   const { data: order, error: orderErr } = await supabase
     .from("orders")
     .insert({
+      user_id: userId,
       customer_name: data.customer_name,
       customer_phone: data.customer_phone,
       customer_email: data.customer_email,

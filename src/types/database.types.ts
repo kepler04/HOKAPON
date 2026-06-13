@@ -161,6 +161,7 @@ export interface Database {
         Row: {
           id: string;
           order_number: string;
+          user_id: string | null;
           customer_name: string;
           customer_phone: string;
           customer_email: string;
@@ -176,6 +177,7 @@ export interface Database {
         Insert: {
           id?: string;
           order_number?: string;
+          user_id?: string | null;
           customer_name: string;
           customer_phone: string;
           customer_email: string;
@@ -300,6 +302,32 @@ export interface Database {
           },
         ];
       };
+      customer_profiles: {
+        Row: {
+          id: string;
+          full_name: string | null;
+          phone: string | null;
+          address: string | null;
+          district: string | null;
+          city: string | null;
+          reference: string | null;
+          updated_at: string;
+        };
+        Insert: {
+          id: string;
+          full_name?: string | null;
+          phone?: string | null;
+          address?: string | null;
+          district?: string | null;
+          city?: string | null;
+          reference?: string | null;
+          updated_at?: string;
+        };
+        Update: Partial<
+          Database["public"]["Tables"]["customer_profiles"]["Insert"]
+        >;
+        Relationships: [];
+      };
     };
     Views: { [_ in never]: never };
     Functions: {
@@ -340,3 +368,5 @@ export type OrderItem = Database["public"]["Tables"]["order_items"]["Row"];
 export type Payment = Database["public"]["Tables"]["payments"]["Row"];
 export type StockMovement =
   Database["public"]["Tables"]["stock_movements"]["Row"];
+export type CustomerProfile =
+  Database["public"]["Tables"]["customer_profiles"]["Row"];
