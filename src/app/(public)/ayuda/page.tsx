@@ -180,7 +180,7 @@ export default function HelpPage() {
           <Section id="garantias" icon={ShieldCheck} title="Garantías">
             <Prose>
               <p>
-                Todos nuestros productos son originales. La garantía cubre fallas
+                Todos nuestros productos son de calidad. La garantía cubre fallas
                 de fábrica bajo uso normal.
               </p>
               <ul>

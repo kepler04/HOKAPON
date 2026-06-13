@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { searchProducts } from "@/features/products/queries";
+import { getFavoriteIds } from "@/features/favorites/queries";
 import { Container } from "@/components/shared/container";
 import { EmptyState } from "@/components/shared/empty-state";
 import { ProductGrid } from "@/features/products/components/product-grid";
@@ -19,6 +20,7 @@ export default async function SearchPage({ searchParams }: Props) {
   const { q } = await searchParams;
   const term = q?.trim() ?? "";
   const results = term ? await searchProducts(term) : [];
+  const favoriteIds = term ? await getFavoriteIds() : new Set<string>();
 
   return (
     <Container className="py-10">
@@ -52,7 +54,7 @@ export default async function SearchPage({ searchParams }: Props) {
           </Button>
         </EmptyState>
       ) : (
-        <ProductGrid products={results} />
+        <ProductGrid products={results} favoriteIds={favoriteIds} />
       )}
     </Container>
   );

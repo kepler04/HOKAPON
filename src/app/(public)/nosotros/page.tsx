@@ -23,8 +23,8 @@ const waUrl = `https://wa.me/${WHATSAPP_PHONE.replace(/\D/g, "")}`;
 const values = [
   {
     icon: ShieldCheck,
-    title: "Productos originales",
-    desc: "Trabajamos solo con productos auténticos y de calidad comprobada.",
+    title: "Productos de calidad",
+    desc: "Seleccionamos productos de buena calidad para ti.",
   },
   {
     icon: Truck,
@@ -98,7 +98,7 @@ export default function AboutPage() {
             </span>
             <h2 className="mt-4 font-display text-xl font-bold">Misión</h2>
             <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-              Ofrecer productos originales y útiles, con precios justos y una
+              Ofrecer productos de calidad y útiles, con precios justos y una
               atención que haga sentir a cada cliente acompañado.
             </p>
           </div>

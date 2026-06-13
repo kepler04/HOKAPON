@@ -3,11 +3,18 @@ import Link from "next/link";
 import { Package } from "lucide-react";
 import { formatPrice } from "@/lib/format";
 import { getProductPlaceholder } from "@/features/products/placeholder";
+import { FavoriteButton } from "@/features/favorites/components/favorite-button";
 import { AddToCartButton } from "./add-to-cart-button";
 import type { ProductCardData } from "@/features/products/types";
 
 /** HOKAPON product card: NUEVO badge, red category, red price, stock pill. */
-export function ProductCard({ product }: { product: ProductCardData }) {
+export function ProductCard({
+  product,
+  favorited = false,
+}: {
+  product: ProductCardData;
+  favorited?: boolean;
+}) {
   const theme = getProductPlaceholder(product.categorySlug);
   const soldOut = product.stock <= 0;
   const hasDiscount =
@@ -60,6 +67,16 @@ export function ProductCard({ product }: { product: ProductCardData }) {
           )}
         </div>
       </Link>
+
+      {/* Favorite heart (outside the link so it doesn't navigate) */}
+      <div className="absolute right-4 top-4 z-10">
+        <FavoriteButton
+          productId={product.id}
+          initialFavorited={favorited}
+          variant="icon"
+          className="h-9 w-9 shadow-sm"
+        />
+      </div>
 
       {/* Body */}
       <div className="flex flex-1 flex-col px-1 pt-3">

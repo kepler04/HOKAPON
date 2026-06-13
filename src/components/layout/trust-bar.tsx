@@ -39,7 +39,7 @@ const features = [
 ];
 
 const microFeatures = [
-  { icon: BadgeCheck, label: "Productos originales" },
+  { icon: BadgeCheck, label: "Productos de calidad" },
   { icon: RotateCcw, label: "Devoluciones fáciles" },
   { icon: Package, label: "Garantía en todos los productos" },
   { icon: Heart, label: "Miles de clientes confían en HOKAPON" },

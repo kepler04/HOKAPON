@@ -79,7 +79,7 @@ const payments = [
 ];
 
 const guarantees = [
-  { icon: BadgeCheck, t: "Productos originales", d: "Garantía de fábrica" },
+  { icon: BadgeCheck, t: "Productos de calidad", d: "Seleccionados para ti" },
   { icon: Package, t: "Garantía asegurada", d: "Todos nuestros productos" },
   { icon: RotateCcw, t: "Devoluciones fáciles", d: "Sin complicaciones" },
   { icon: Headphones, t: "Soporte dedicado", d: "Estamos para ayudarte" },

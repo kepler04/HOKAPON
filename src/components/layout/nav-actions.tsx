@@ -40,16 +40,8 @@ export function NavActions() {
         )}
       </Link>
 
-      {/* Favorites (decorative for the demo) */}
-      <button
-        aria-label="Favoritos"
-        className="relative hidden h-10 w-10 place-items-center text-foreground transition-colors hover:text-accent sm:grid"
-      >
-        <Heart className="h-6 w-6" />
-        <span className="absolute -right-1.5 -top-1.5 grid h-5 min-w-5 place-items-center rounded-full bg-accent px-1 text-[11px] font-bold text-accent-foreground">
-          0
-        </span>
-      </button>
+      {/* Favorites */}
+      <FavoritesLink />
 
       {/* Country selector (decorative) */}
       <button className="hidden items-center gap-1.5 text-sm font-semibold lg:flex">
@@ -238,5 +230,57 @@ function UserZone() {
         </div>
       )}
     </div>
+  );
+}
+
+/** Header favorites link with a live count (0 / hidden badge if none). */
+function FavoritesLink() {
+  const [count, setCount] = useState(0);
+  const [supabase] = useState(() => createClient());
+
+  useEffect(() => {
+    let active = true;
+
+    async function refresh() {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (!user) {
+        if (active) setCount(0);
+        return;
+      }
+      const { count: c } = await supabase
+        .from("favorites")
+        .select("product_id", { count: "exact", head: true })
+        .eq("user_id", user.id);
+      if (active) setCount(c ?? 0);
+    }
+
+    refresh();
+    const { data: sub } = supabase.auth.onAuthStateChange(() => refresh());
+    function onFocus() {
+      refresh();
+    }
+    window.addEventListener("focus", onFocus);
+    return () => {
+      active = false;
+      sub.subscription.unsubscribe();
+      window.removeEventListener("focus", onFocus);
+    };
+  }, [supabase]);
+
+  return (
+    <Link
+      href="/favoritos"
+      aria-label="Favoritos"
+      className="relative hidden h-10 w-10 place-items-center text-foreground transition-colors hover:text-accent sm:grid"
+    >
+      <Heart className="h-6 w-6" />
+      {count > 0 && (
+        <span className="absolute -right-1.5 -top-1.5 grid h-5 min-w-5 place-items-center rounded-full bg-accent px-1 text-[11px] font-bold text-accent-foreground">
+          {count}
+        </span>
+      )}
+    </Link>
   );
 }

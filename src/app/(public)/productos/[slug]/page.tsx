@@ -4,6 +4,8 @@ import { notFound } from "next/navigation";
 import { ChevronRight, ShieldCheck, MessageCircle, Flame, Package } from "lucide-react";
 import { getProductBySlug } from "@/features/products/queries";
 import { getProductPlaceholder } from "@/features/products/placeholder";
+import { getFavoriteIds } from "@/features/favorites/queries";
+import { FavoriteButton } from "@/features/favorites/components/favorite-button";
 import { STORAGE_BUCKETS } from "@/lib/constants";
 import { Container } from "@/components/shared/container";
 import { Badge } from "@/components/ui/badge";
@@ -40,6 +42,8 @@ export default async function ProductDetailPage({ params }: Props) {
   const soldOut = product.stock <= 0;
   const LOW_STOCK = 5;
   const lowStock = !soldOut && product.stock <= LOW_STOCK;
+  const favoriteIds = await getFavoriteIds();
+  const isFavorite = favoriteIds.has(product.id);
 
   const images = [...(product.product_images ?? [])]
     .sort((a, b) => Number(b.is_primary) - Number(a.is_primary) || a.sort_order - b.sort_order)
@@ -129,6 +133,15 @@ export default async function ProductDetailPage({ params }: Props) {
                 stock: product.stock,
               }}
               maxPerOrder={product.max_per_order}
+            />
+          </div>
+
+          {/* Save to favorites */}
+          <div className="mt-4">
+            <FavoriteButton
+              productId={product.id}
+              initialFavorited={isFavorite}
+              variant="button"
             />
           </div>
 

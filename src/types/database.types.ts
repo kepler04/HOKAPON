@@ -304,6 +304,27 @@ export interface Database {
           },
         ];
       };
+      favorites: {
+        Row: {
+          user_id: string;
+          product_id: string;
+          created_at: string;
+        };
+        Insert: {
+          user_id: string;
+          product_id: string;
+          created_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["favorites"]["Insert"]>;
+        Relationships: [
+          {
+            foreignKeyName: "favorites_product_id_fkey";
+            columns: ["product_id"];
+            referencedRelation: "products";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       customer_profiles: {
         Row: {
           id: string;

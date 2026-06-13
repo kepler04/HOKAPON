@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import { getProducts } from "@/features/products/queries";
 import { getActiveCategories } from "@/features/categories/queries";
+import { getFavoriteIds } from "@/features/favorites/queries";
 import { Container } from "@/components/shared/container";
 import { Button } from "@/components/ui/button";
 import { ProductGrid } from "@/features/products/components/product-grid";
@@ -57,9 +58,10 @@ const HERO_SLIDES: HeroSlide[] = [
 ];
 
 export default async function HomePage() {
-  const [featured, categories] = await Promise.all([
+  const [featured, categories, favoriteIds] = await Promise.all([
     getProducts({ limit: 8 }),
     getActiveCategories(),
+    getFavoriteIds(),
   ]);
 
   return (
@@ -102,12 +104,12 @@ export default async function HomePage() {
           </Link>
         </div>
 
-        <ProductGrid products={featured} />
+        <ProductGrid products={featured} favoriteIds={favoriteIds} />
 
         {/* Guarantees row */}
         <div className="mt-8 grid grid-cols-2 gap-6 border-t border-border pt-6 md:grid-cols-4">
           {[
-            { icon: ShieldCheck, t: "Garantía oficial", d: "Productos 100% originales" },
+            { icon: ShieldCheck, t: "Garantía oficial", d: "Productos de calidad garantizada" },
             { icon: Truck, t: "Envíos a todo Perú", d: "Rápido y seguro" },
             { icon: CreditCard, t: "Pagos seguros", d: "Yape, Plin, tarjetas y más" },
             { icon: Headphones, t: "Atención por WhatsApp", d: "Te ayudamos en lo que necesites" },
