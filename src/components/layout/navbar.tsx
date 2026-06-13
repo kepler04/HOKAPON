@@ -1,65 +1,42 @@
-import Link from "next/link";
 import { getActiveCategories } from "@/features/categories/queries";
-import { STORE_NAME } from "@/lib/constants";
 import { Container } from "@/components/shared/container";
-import { CartButton } from "./cart-button";
 import { SearchBar } from "./search-bar";
 import { MobileNav } from "./mobile-nav";
+import { TopBar } from "./top-bar";
+import { HokaponLogo } from "./hokapon-logo";
+import { NavActions } from "./nav-actions";
 
-/** Top navigation. Server Component — fetches categories for the nav row. */
+/** HOKAPON top navigation (marketplace style). Server Component. */
 export async function Navbar() {
   const categories = await getActiveCategories();
 
   return (
-    <header className="sticky top-0 z-40 border-b border-border bg-background/85 backdrop-blur-md">
+    <header className="sticky top-0 z-40 bg-background shadow-sm">
+      {/* Trust bar */}
+      <TopBar />
+
+      {/* Main row */}
       <Container>
-        {/* Row 1: logo · search · cart */}
-        <div className="flex h-[68px] items-center gap-3 sm:gap-6">
+        <div className="flex h-[76px] items-center gap-4 sm:gap-8">
           <div className="flex items-center gap-2">
             <MobileNav categories={categories} />
-            <Link href="/" className="flex items-center gap-2">
-              <span
-                className="grid h-9 w-9 place-items-center rounded-2xl bg-accent text-lg"
-                aria-hidden
-              >
-                🧸
-              </span>
-              <span className="font-display text-xl font-bold tracking-tight">
-                {STORE_NAME}
-              </span>
-            </Link>
+            <HokaponLogo />
           </div>
 
-          <SearchBar className="hidden flex-1 md:flex" />
+          <SearchBar
+            className="hidden flex-1 md:flex"
+            placeholder="¿Qué estás buscando hoy?"
+          />
 
-          <div className="ml-auto flex items-center gap-2 md:ml-0">
-            <CartButton />
+          <div className="ml-auto md:ml-0">
+            <NavActions />
           </div>
         </div>
 
         {/* Mobile search */}
         <div className="pb-3 md:hidden">
-          <SearchBar />
+          <SearchBar placeholder="¿Qué estás buscando hoy?" />
         </div>
-
-        {/* Row 2: category nav (desktop) */}
-        <nav className="hidden h-12 items-center gap-1 md:flex" aria-label="Categorías">
-          <Link
-            href="/productos"
-            className="rounded-full px-4 py-1.5 text-sm font-semibold transition-colors hover:bg-secondary"
-          >
-            Todos
-          </Link>
-          {categories.map((cat) => (
-            <Link
-              key={cat.id}
-              href={`/categorias/${cat.slug}`}
-              className="rounded-full px-4 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
-            >
-              {cat.name}
-            </Link>
-          ))}
-        </nav>
       </Container>
     </header>
   );

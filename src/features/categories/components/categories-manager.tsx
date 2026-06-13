@@ -16,12 +16,17 @@ import { slugify } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input, Textarea } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { CategoryImageField } from "./category-image-field";
 import type { Category } from "@/features/categories/types";
 
 export function CategoriesManager({ categories }: { categories: Category[] }) {
   const router = useRouter();
-  const [editing, setEditing] = useState<Category | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
   const [serverError, setServerError] = useState<string | null>(null);
+
+  // Derive the live category from props so the image preview reflects the
+  // latest server state after router.refresh() (instead of a stale snapshot).
+  const editing = categories.find((c) => c.id === editingId) ?? null;
 
   const {
     register,
@@ -35,7 +40,7 @@ export function CategoriesManager({ categories }: { categories: Category[] }) {
   });
 
   function startEdit(cat: Category) {
-    setEditing(cat);
+    setEditingId(cat.id);
     setServerError(null);
     reset({
       name: cat.name,
@@ -47,7 +52,7 @@ export function CategoriesManager({ categories }: { categories: Category[] }) {
   }
 
   function cancelEdit() {
-    setEditing(null);
+    setEditingId(null);
     setServerError(null);
     reset({ name: "", slug: "", description: "", is_active: true, sort_order: 0 });
   }
@@ -171,6 +176,23 @@ export function CategoriesManager({ categories }: { categories: Category[] }) {
             <label htmlFor="cat-desc" className={field}>Descripción</label>
             <Textarea id="cat-desc" {...register("description")} />
           </div>
+
+          {/* Image: only available once the category exists (needs an id). */}
+          <div>
+            <span className={field}>Imagen</span>
+            {editing ? (
+              <CategoryImageField
+                categoryId={editing.id}
+                imagePath={editing.image_url}
+              />
+            ) : (
+              <p className="rounded-2xl border border-dashed border-border bg-secondary/40 px-4 py-3 text-xs text-muted-foreground">
+                Crea la categoría primero; luego podrás subir su imagen al
+                editarla.
+              </p>
+            )}
+          </div>
+
           <div>
             <label htmlFor="cat-order" className={field}>Orden</label>
             <Input id="cat-order" type="number" min="0" {...register("sort_order")} />

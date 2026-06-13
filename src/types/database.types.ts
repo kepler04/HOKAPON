@@ -29,6 +29,7 @@ export type OrderStatus =
 export type PaymentMethod = "yape" | "plin" | "transferencia" | "whatsapp";
 export type PaymentStatus = "pendiente" | "confirmado" | "rechazado";
 export type UserRole = "admin" | "staff";
+export type StockMovementType = "entrada" | "salida";
 
 export interface Database {
   // Marker read by supabase-js (>= 2.10x) for PostgREST version-aware typing.
@@ -64,6 +65,7 @@ export interface Database {
           name: string;
           slug: string;
           description: string | null;
+          image_url: string | null;
           is_active: boolean;
           sort_order: number;
           created_at: string;
@@ -74,6 +76,7 @@ export interface Database {
           name: string;
           slug: string;
           description?: string | null;
+          image_url?: string | null;
           is_active?: boolean;
           sort_order?: number;
           created_at?: string;
@@ -258,6 +261,45 @@ export interface Database {
           },
         ];
       };
+      stock_movements: {
+        Row: {
+          id: string;
+          product_id: string;
+          type: StockMovementType;
+          quantity: number;
+          reason: string | null;
+          order_id: string | null;
+          created_by: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          product_id: string;
+          type: StockMovementType;
+          quantity: number;
+          reason?: string | null;
+          order_id?: string | null;
+          created_by?: string | null;
+          created_at?: string;
+        };
+        Update: Partial<
+          Database["public"]["Tables"]["stock_movements"]["Insert"]
+        >;
+        Relationships: [
+          {
+            foreignKeyName: "stock_movements_product_id_fkey";
+            columns: ["product_id"];
+            referencedRelation: "products";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "stock_movements_order_id_fkey";
+            columns: ["order_id"];
+            referencedRelation: "orders";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
     };
     Views: { [_ in never]: never };
     Functions: {
@@ -265,8 +307,21 @@ export interface Database {
         Args: { p_order_id: string };
         Returns: undefined;
       };
+      commit_order_stock_force: {
+        Args: { p_order_id: string };
+        Returns: undefined;
+      };
       restore_order_stock: {
         Args: { p_order_id: string };
+        Returns: undefined;
+      };
+      register_stock_movement: {
+        Args: {
+          p_product_id: string;
+          p_type: StockMovementType;
+          p_quantity: number;
+          p_reason?: string | null;
+        };
         Returns: undefined;
       };
     };
@@ -283,3 +338,5 @@ export type ProductImage =
 export type Order = Database["public"]["Tables"]["orders"]["Row"];
 export type OrderItem = Database["public"]["Tables"]["order_items"]["Row"];
 export type Payment = Database["public"]["Tables"]["payments"]["Row"];
+export type StockMovement =
+  Database["public"]["Tables"]["stock_movements"]["Row"];

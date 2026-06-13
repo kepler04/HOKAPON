@@ -26,7 +26,7 @@ export function SearchBar({
     <form
       onSubmit={onSubmit}
       className={cn(
-        "group flex h-12 items-center gap-2 rounded-full border-2 border-border bg-card px-4 transition-colors focus-within:border-accent",
+        "group flex h-12 items-center gap-2 rounded-lg border border-border bg-card pl-4 pr-1.5 transition-colors focus-within:border-accent focus-within:ring-2 focus-within:ring-accent/20",
         className,
       )}
       role="search"
@@ -42,7 +42,7 @@ export function SearchBar({
       />
       <button
         type="submit"
-        className="hidden shrink-0 rounded-full bg-accent px-4 py-1.5 text-xs font-bold text-accent-foreground transition-all hover:brightness-105 active:scale-95 sm:block"
+        className="hidden shrink-0 rounded-md bg-accent px-5 py-2 text-sm font-bold text-accent-foreground transition-all hover:brightness-110 active:scale-95 sm:block"
       >
         Buscar
       </button>

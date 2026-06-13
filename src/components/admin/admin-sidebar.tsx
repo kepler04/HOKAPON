@@ -7,6 +7,7 @@ import {
   Package,
   Tags,
   ShoppingCart,
+  ArrowDownUp,
   Store,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -14,6 +15,7 @@ import { cn } from "@/lib/utils";
 const links = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard, exact: true },
   { href: "/admin/productos", label: "Productos", icon: Package },
+  { href: "/admin/inventario", label: "Inventario", icon: ArrowDownUp },
   { href: "/admin/categorias", label: "Categorías", icon: Tags },
   { href: "/admin/pedidos", label: "Pedidos", icon: ShoppingCart },
 ];

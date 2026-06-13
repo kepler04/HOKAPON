@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { CheckCircle2, ChevronRight } from "lucide-react";
+import { CheckCircle2, ChevronRight, PackageSearch } from "lucide-react";
 import { getPublicOrderByNumber } from "@/features/orders/queries";
 import { formatPrice } from "@/lib/format";
 import { Container } from "@/components/shared/container";
@@ -100,7 +100,13 @@ export default async function SuccessPage({ params }: Props) {
         />
       </section>
 
-      <div className="mt-8 text-center">
+      <div className="mt-8 flex flex-col items-center gap-3 text-center">
+        <Link
+          href={`/seguimiento?codigo=${encodeURIComponent(order.order_number)}`}
+          className="inline-flex items-center gap-2 rounded-lg border-2 border-accent px-5 py-2.5 text-sm font-semibold text-accent transition-colors hover:bg-accent hover:text-accent-foreground"
+        >
+          <PackageSearch className="h-5 w-5" /> Seguir el estado de mi pedido
+        </Link>
         <Link
           href="/productos"
           className="inline-flex items-center gap-1 text-sm font-semibold text-accent hover:underline"

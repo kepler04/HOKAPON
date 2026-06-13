@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useTransition } from "react";
-import { Eye, EyeOff, Pencil, Trash2 } from "lucide-react";
+import { ArrowDownUp, Eye, EyeOff, Pencil, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { setProductActive, deleteProduct } from "@/features/products/actions";
 
@@ -45,6 +45,14 @@ export function ProductRowActions({
 
   return (
     <div className="flex items-center justify-end gap-1">
+      <Link
+        href={`/admin/inventario/${id}`}
+        aria-label="Entradas y salidas"
+        title="Entradas y salidas"
+        className="grid h-8 w-8 place-items-center rounded-full text-muted-foreground hover:bg-secondary hover:text-foreground"
+      >
+        <ArrowDownUp className="h-4 w-4" />
+      </Link>
       <Link
         href={`/admin/productos/${id}`}
         aria-label="Editar"

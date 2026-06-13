@@ -1,7 +1,13 @@
 import "server-only";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import type { Order, OrderDetail, OrderFilters } from "./types";
+import type {
+  Order,
+  OrderDetail,
+  OrderFilters,
+  OrderStockStatus,
+  StockShortage,
+} from "./types";
 
 /**
  * Public-facing order lookup for the post-checkout success page.
@@ -61,6 +67,54 @@ export async function getOrderById(id: string): Promise<OrderDetail | null> {
 
   if (error) throw error;
   return (data as OrderDetail | null) ?? null;
+}
+
+/**
+ * Stock availability for an order's items (admin only).
+ * Compares each line item's quantity against the product's CURRENT stock.
+ * If the order already committed stock, returns no shortages (the decrement
+ * already happened, so the check is moot).
+ */
+export async function getOrderStockStatus(
+  orderId: string,
+): Promise<OrderStockStatus> {
+  const supabase = await createClient();
+
+  const { data: order, error: orderErr } = await supabase
+    .from("orders")
+    .select("stock_committed")
+    .eq("id", orderId)
+    .maybeSingle();
+  if (orderErr) throw orderErr;
+
+  if (!order || order.stock_committed) {
+    return { alreadyCommitted: order?.stock_committed ?? false, shortages: [] };
+  }
+
+  // Line items joined with the product's current stock.
+  const { data: items, error: itemsErr } = await supabase
+    .from("order_items")
+    .select("product_id,product_name,quantity,products(stock)")
+    .eq("order_id", orderId);
+  if (itemsErr) throw itemsErr;
+
+  const shortages: StockShortage[] = [];
+  for (const it of items ?? []) {
+    if (!it.product_id) continue; // product was deleted; skip
+    const product = it.products as { stock: number } | null;
+    const available = product?.stock ?? 0;
+    if (available < it.quantity) {
+      shortages.push({
+        productId: it.product_id,
+        productName: it.product_name,
+        requested: it.quantity,
+        available,
+        missing: it.quantity - available,
+      });
+    }
+  }
+
+  return { alreadyCommitted: false, shortages };
 }
 
 /** Lookup by human-readable order number (e.g. success page). */

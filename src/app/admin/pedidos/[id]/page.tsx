@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ChevronLeft, Mail, Phone, User } from "lucide-react";
-import { getOrderById } from "@/features/orders/queries";
+import { AlertTriangle, ChevronLeft, Mail, Phone, User } from "lucide-react";
+import { getOrderById, getOrderStockStatus } from "@/features/orders/queries";
 import { formatPrice, formatDate } from "@/lib/format";
 import { OrderStatusBadge } from "@/features/orders/components/order-status-badge";
 import { StatusChanger } from "@/features/orders/components/status-changer";
@@ -14,6 +14,15 @@ export default async function OrderDetailPage({ params }: Props) {
   const { id } = await params;
   const order = await getOrderById(id);
   if (!order) notFound();
+
+  const stockStatus = await getOrderStockStatus(id);
+  const hasShortage = stockStatus.shortages.length > 0;
+  // The stock warning only matters while the order hasn't been paid/committed.
+  const showStockWarning =
+    hasShortage &&
+    !["pago_confirmado", "en_preparacion", "entregado", "cancelado"].includes(
+      order.status,
+    );
 
   return (
     <div className="mx-auto max-w-4xl space-y-6">
@@ -34,10 +43,50 @@ export default async function OrderDetailPage({ params }: Props) {
         <OrderStatusBadge status={order.status} />
       </div>
 
+      {/* Stock shortage warning */}
+      {showStockWarning && (
+        <section className="rounded-3xl border-2 border-destructive/40 bg-destructive/5 p-6">
+          <div className="flex items-start gap-3">
+            <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-destructive/15 text-destructive">
+              <AlertTriangle className="h-6 w-6" />
+            </span>
+            <div className="flex-1">
+              <h2 className="font-display text-lg font-bold text-destructive">
+                No hay stock disponible
+              </h2>
+              <p className="mt-1 text-sm text-muted-foreground">
+                No puedes completar esta venta con el stock actual. Revisa los
+                productos faltantes o cancela la venta.
+              </p>
+              <ul className="mt-4 space-y-2">
+                {stockStatus.shortages.map((s) => (
+                  <li
+                    key={s.productId}
+                    className="flex flex-wrap items-center justify-between gap-2 rounded-xl bg-card px-4 py-2.5 text-sm"
+                  >
+                    <span className="font-medium">{s.productName}</span>
+                    <span className="text-muted-foreground">
+                      Pedido: <b className="text-foreground">{s.requested}</b> ·
+                      Disponible: <b className="text-foreground">{s.available}</b>{" "}
+                      · Faltan:{" "}
+                      <b className="text-destructive">{s.missing}</b>
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        </section>
+      )}
+
       {/* Status changer */}
       <section className="rounded-3xl border border-border bg-card p-6">
         <h2 className="mb-3 font-display text-lg font-bold">Cambiar estado</h2>
-        <StatusChanger orderId={order.id} current={order.status} />
+        <StatusChanger
+          orderId={order.id}
+          current={order.status}
+          hasShortage={showStockWarning}
+        />
       </section>
 
       <div className="grid gap-6 md:grid-cols-[1fr_300px]">

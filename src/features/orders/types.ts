@@ -28,3 +28,22 @@ export interface OrderFilters {
   status?: OrderStatus;
   search?: string;
 }
+
+/** One line item that lacks enough current stock to fulfil the order. */
+export interface StockShortage {
+  productId: string;
+  productName: string;
+  requested: number;
+  available: number;
+  missing: number;
+}
+
+/**
+ * Whether an order can be fulfilled with current stock.
+ * `alreadyCommitted` is true when stock was already decremented for this order
+ * (so the check no longer applies). `shortages` lists products short on stock.
+ */
+export interface OrderStockStatus {
+  alreadyCommitted: boolean;
+  shortages: StockShortage[];
+}

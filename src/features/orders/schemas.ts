@@ -14,6 +14,9 @@ const ORDER_STATUSES = [
 export const updateOrderStatusSchema = z.object({
   orderId: z.string().uuid(),
   status: z.enum(ORDER_STATUSES),
+  // When confirming payment without enough stock, the admin may force it.
+  // Stock is then decremented anyway (may go negative).
+  force: z.boolean().optional(),
 });
 
 export type UpdateOrderStatusInput = z.infer<typeof updateOrderStatusSchema>;

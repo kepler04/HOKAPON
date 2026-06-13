@@ -1,10 +1,11 @@
 "use client";
 
-import { Check, Plus } from "lucide-react";
+import { Check, Plus, ShoppingCart } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { useCart } from "@/store/cart";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import type { CartItem } from "@/features/checkout/types";
 
 interface AddToCartButtonProps {
@@ -36,16 +37,17 @@ export function AddToCartButton({
 
   if (variant === "icon") {
     return (
-      <Button
-        size="icon"
-        variant="accent"
+      <button
         onClick={handleAdd}
         disabled={soldOut}
         aria-label={`Agregar ${item.name} al carrito`}
-        className={className}
+        className={cn(
+          "grid h-11 w-11 shrink-0 place-items-center rounded-full border border-border bg-card text-accent shadow-sm transition-all hover:bg-accent hover:text-accent-foreground active:scale-95 disabled:opacity-50",
+          className,
+        )}
       >
-        {added ? <Check className="h-5 w-5" /> : <Plus className="h-5 w-5" />}
-      </Button>
+        {added ? <Check className="h-5 w-5" /> : <ShoppingCart className="h-5 w-5" />}
+      </button>
     );
   }
 

@@ -5,10 +5,12 @@ import {
   getCategoryBySlug,
   getCategorySlugsForStaticParams,
 } from "@/features/categories/queries";
+import Image from "next/image";
 import { Container } from "@/components/shared/container";
 import { EmptyState } from "@/components/shared/empty-state";
 import { ProductGrid } from "@/features/products/components/product-grid";
 import { getProductPlaceholder } from "@/features/products/placeholder";
+import { categoryImageUrl } from "@/features/categories/image";
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -40,14 +42,26 @@ export default async function CategoryPage({ params }: Props) {
   return (
     <Container className="py-10">
       <header
-        className="mb-8 flex items-center gap-4 rounded-3xl border border-border p-6"
+        className="mb-8 flex items-center gap-5 overflow-hidden rounded-3xl border border-border p-6"
         style={{
           backgroundImage: `linear-gradient(150deg, ${theme.from}, ${theme.to})`,
         }}
       >
-        <span className="text-5xl" aria-hidden>
-          {theme.emoji}
-        </span>
+        {category.image_url ? (
+          <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-2xl border border-white/40 sm:h-24 sm:w-24">
+            <Image
+              src={categoryImageUrl(category.image_url)}
+              alt={category.name}
+              fill
+              sizes="96px"
+              className="object-cover"
+            />
+          </div>
+        ) : (
+          <span className="text-5xl" aria-hidden>
+            {theme.emoji}
+          </span>
+        )}
         <div>
           <h1 className="text-3xl font-bold sm:text-4xl">{category.name}</h1>
           {category.description && (

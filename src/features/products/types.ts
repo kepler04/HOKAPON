@@ -23,4 +23,5 @@ export interface ProductCardData {
   is_featured: boolean;
   imageUrl: string | null;
   categorySlug: string | null;
+  categoryName: string | null;
 }

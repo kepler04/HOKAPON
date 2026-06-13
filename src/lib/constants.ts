@@ -54,6 +54,7 @@ export const PAYMENT_STATUSES: Record<PaymentStatus, string> = {
 /** Supabase Storage bucket names. */
 export const STORAGE_BUCKETS = {
   PRODUCTS: "product-images", // public
+  CATEGORIES: "category-images", // public
   PROOFS: "payment-proofs", // private
 } as const;
 

@@ -8,38 +8,39 @@
 */
 @layer base {
   :root {
-    --background: 33 100% 98%; /* warm cream #FFF8F0 */
+    /* HOKAPON palette: clean white canvas, HOKAPON red accent, dark navy bars */
+    --background: 0 0% 100%; /* white */
     --foreground: 222 47% 13%; /* deep navy ink */
 
     --card: 0 0% 100%;
     --card-foreground: 222 47% 13%;
 
-    --primary: 222 47% 16%; /* navy — used for primary surfaces/text buttons */
-    --primary-foreground: 33 100% 98%;
+    --primary: 222 47% 12%; /* dark navy — top bar / footer / dark surfaces */
+    --primary-foreground: 0 0% 98%;
 
-    --secondary: 30 50% 94%;
+    --secondary: 220 20% 96%;
     --secondary-foreground: 222 47% 16%;
 
-    --muted: 30 30% 95%;
-    --muted-foreground: 222 16% 42%;
+    --muted: 220 20% 96%;
+    --muted-foreground: 222 12% 42%;
 
-    /* Brand accent — vibrant coral for CTAs */
-    --accent: 12 88% 59%; /* #F25C3B-ish */
+    /* Brand accent — HOKAPON red */
+    --accent: 351 84% 49%; /* #E1182B-ish */
     --accent-foreground: 0 0% 100%;
 
-    /* Playful secondaries */
-    --mint: 160 55% 55%;
-    --sun: 42 96% 60%;
-    --berry: 340 70% 62%;
+    /* Secondaries */
+    --mint: 160 55% 42%;
+    --sun: 42 96% 55%;
+    --berry: 351 84% 49%;
 
-    --destructive: 0 75% 55%;
+    --destructive: 0 75% 50%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 28 35% 90%;
-    --input: 28 35% 88%;
-    --ring: 12 88% 59%;
+    --border: 220 16% 90%;
+    --input: 220 16% 88%;
+    --ring: 351 84% 49%;
 
-    --radius: 1.25rem;
+    --radius: 0.75rem;
   }
 }
 
@@ -48,23 +49,7 @@
     @apply border-border;
   }
   body {
-    background-image:
-      radial-gradient(
-        circle at 12% 18%,
-        hsl(42 96% 60% / 0.07),
-        transparent 38%
-      ),
-      radial-gradient(
-        circle at 88% 8%,
-        hsl(12 88% 59% / 0.07),
-        transparent 36%
-      ),
-      radial-gradient(
-        circle at 70% 92%,
-        hsl(160 55% 55% / 0.06),
-        transparent 40%
-      );
-    background-attachment: fixed;
+    background-color: hsl(220 20% 98%); /* very light gray canvas, marketplace feel */
   }
 
   /* Distinctive display headings */
