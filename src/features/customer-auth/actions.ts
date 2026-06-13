@@ -90,6 +90,13 @@ export async function customerSignUp(
         error: "Ya existe una cuenta con ese correo. Inicia sesión.",
       };
     }
+    if (/rate limit|too many|over_email_send_rate/i.test(error.message)) {
+      return {
+        ok: false,
+        error:
+          "Se alcanzó el límite de correos por ahora. Espera unos minutos e inténtalo de nuevo.",
+      };
+    }
     return { ok: false, error: error.message };
   }
 

@@ -5,6 +5,7 @@ import { STORE_NAME } from "@/lib/constants";
 import { AdminSidebar } from "@/components/admin/admin-sidebar";
 import { AdminMobileBar } from "@/components/admin/admin-mobile-bar";
 import { LogoutButton } from "@/features/auth/components/logout-button";
+import { IdleLogout } from "@/features/auth/components/idle-logout";
 
 /**
  * Admin shell. Middleware already guards /admin, but we re-check the session
@@ -66,6 +67,9 @@ export default async function AdminLayout({
 
         <main className="flex-1 p-4 sm:p-6 lg:p-8">{children}</main>
       </div>
+
+      {/* Auto sign-out after inactivity (defense in depth). */}
+      <IdleLogout />
     </div>
   );
 }

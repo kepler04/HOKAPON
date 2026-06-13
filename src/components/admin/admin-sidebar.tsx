@@ -9,6 +9,8 @@ import {
   ShoppingCart,
   ArrowDownUp,
   Wallet,
+  Users,
+  History,
   Store,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -20,6 +22,8 @@ const links = [
   { href: "/admin/categorias", label: "Categorías", icon: Tags },
   { href: "/admin/pedidos", label: "Pedidos", icon: ShoppingCart },
   { href: "/admin/pagos", label: "Métodos de pago", icon: Wallet },
+  { href: "/admin/usuarios", label: "Usuarios", icon: Users },
+  { href: "/admin/actividad", label: "Actividad", icon: History },
 ];
 
 export function AdminSidebar() {

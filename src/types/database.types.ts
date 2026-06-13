@@ -339,6 +339,30 @@ export interface Database {
         >;
         Relationships: [];
       };
+      audit_log: {
+        Row: {
+          id: string;
+          actor_id: string | null;
+          actor_email: string | null;
+          action: string;
+          entity: string | null;
+          entity_id: string | null;
+          summary: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          actor_id?: string | null;
+          actor_email?: string | null;
+          action: string;
+          entity?: string | null;
+          entity_id?: string | null;
+          summary?: string | null;
+          created_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["audit_log"]["Insert"]>;
+        Relationships: [];
+      };
       favorites: {
         Row: {
           user_id: string;
