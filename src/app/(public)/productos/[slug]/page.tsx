@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ChevronRight, ShieldCheck, MessageCircle } from "lucide-react";
+import { ChevronRight, ShieldCheck, MessageCircle, Flame, Package } from "lucide-react";
 import { getProductBySlug } from "@/features/products/queries";
 import { getProductPlaceholder } from "@/features/products/placeholder";
 import { STORAGE_BUCKETS } from "@/lib/constants";
@@ -38,6 +38,8 @@ export default async function ProductDetailPage({ params }: Props) {
   const categorySlug = product.categories?.slug ?? null;
   const theme = getProductPlaceholder(categorySlug);
   const soldOut = product.stock <= 0;
+  const LOW_STOCK = 5;
+  const lowStock = !soldOut && product.stock <= LOW_STOCK;
 
   const images = [...(product.product_images ?? [])]
     .sort((a, b) => Number(b.is_primary) - Number(a.is_primary) || a.sort_order - b.sort_order)
@@ -73,14 +75,16 @@ export default async function ProductDetailPage({ params }: Props) {
 
         {/* Info */}
         <div className="animate-rise" style={{ animationDelay: "80ms" }}>
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             {product.is_featured && <Badge tone="accent">Destacado</Badge>}
             {soldOut ? (
               <Badge tone="neutral">Agotado</Badge>
-            ) : product.stock <= 5 ? (
-              <Badge tone="berry">¡Últimas {product.stock} unidades!</Badge>
             ) : (
-              <Badge tone="mint">En stock</Badge>
+              <Badge tone="mint">
+                <Package className="mr-1 inline h-3.5 w-3.5" />
+                En stock · {product.stock}{" "}
+                {product.stock === 1 ? "disponible" : "disponibles"}
+              </Badge>
             )}
           </div>
 
@@ -89,6 +93,24 @@ export default async function ProductDetailPage({ params }: Props) {
           <div className="mt-5">
             <Price value={product.price} comparePrice={product.compare_price} size="lg" />
           </div>
+
+          {/* Urgency banner when stock is low */}
+          {lowStock && (
+            <div className="mt-5 flex items-center gap-3 rounded-2xl border border-accent/30 bg-accent/10 px-4 py-3">
+              <Flame className="h-6 w-6 shrink-0 animate-pulse text-accent" />
+              <div>
+                <p className="text-sm font-extrabold uppercase tracking-wide text-accent">
+                  ¡Últimos en stock!
+                </p>
+                <p className="text-sm text-foreground/80">
+                  Solo quedan{" "}
+                  <span className="font-bold text-accent">{product.stock}</span>{" "}
+                  {product.stock === 1 ? "unidad" : "unidades"} · ¡aprovecha
+                  antes de que se agote!
+                </p>
+              </div>
+            </div>
+          )}
 
           {product.description && (
             <p className="mt-6 leading-relaxed text-muted-foreground">
@@ -106,6 +128,7 @@ export default async function ProductDetailPage({ params }: Props) {
                 imageUrl: primaryImageUrl,
                 stock: product.stock,
               }}
+              maxPerOrder={product.max_per_order}
             />
           </div>
 

@@ -48,7 +48,7 @@ export async function createOrder(
   const productIds = data.items.map((i) => i.productId);
   const { data: products, error: prodErr } = await supabase
     .from("products")
-    .select("id,name,price,stock,is_active")
+    .select("id,name,price,stock,is_active,max_per_order")
     .in("id", productIds);
 
   if (prodErr) return { ok: false, error: prodErr.message };
@@ -68,6 +68,13 @@ export async function createOrder(
       return {
         ok: false,
         error: `Stock insuficiente para "${product.name}" (disponible: ${product.stock}).`,
+      };
+    }
+    // Enforce the per-product purchase limit (server-side, can't be bypassed).
+    if (product.max_per_order && item.quantity > product.max_per_order) {
+      return {
+        ok: false,
+        error: `Solo puedes llevar hasta ${product.max_per_order} de "${product.name}" por pedido.`,
       };
     }
     const lineTotal = Number((product.price * item.quantity).toFixed(2));

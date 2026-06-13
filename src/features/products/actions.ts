@@ -33,6 +33,7 @@ export async function createProduct(
       ...parsed.data,
       description: parsed.data.description || null,
       sku: parsed.data.sku || null,
+      max_per_order: parsed.data.max_per_order || null, // 0 → no limit
     })
     .select("id")
     .single();
@@ -59,6 +60,7 @@ export async function updateProduct(
       ...parsed.data,
       description: parsed.data.description || null,
       sku: parsed.data.sku || null,
+      max_per_order: parsed.data.max_per_order || null, // 0 → no limit
     })
     .eq("id", id);
 

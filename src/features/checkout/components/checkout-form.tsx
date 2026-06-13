@@ -15,8 +15,14 @@ import { createOrder } from "@/features/checkout/actions";
 import { Button } from "@/components/ui/button";
 import { Input, Textarea } from "@/components/ui/input";
 
+export interface CheckoutPrefill {
+  customer_name?: string;
+  customer_phone?: string;
+  customer_email?: string;
+}
+
 /** Customer details form. Submits to createOrder, clears cart, redirects. */
-export function CheckoutForm() {
+export function CheckoutForm({ prefill }: { prefill?: CheckoutPrefill }) {
   const router = useRouter();
   const items = useCart((s) => s.items);
   const clear = useCart((s) => s.clear);
@@ -28,6 +34,11 @@ export function CheckoutForm() {
     formState: { errors, isSubmitting },
   } = useForm<CustomerDetailsInput>({
     resolver: zodResolver(customerDetailsSchema),
+    defaultValues: {
+      customer_name: prefill?.customer_name ?? "",
+      customer_phone: prefill?.customer_phone ?? "",
+      customer_email: prefill?.customer_email ?? "",
+    },
   });
 
   async function onSubmit(values: CustomerDetailsInput) {

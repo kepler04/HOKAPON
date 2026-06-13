@@ -14,6 +14,13 @@ export const productSchema = z
     price: z.coerce.number().min(0, "El precio no puede ser negativo"),
     compare_price: z.coerce.number().min(0).nullable().optional(),
     stock: z.coerce.number().int().min(0, "El stock no puede ser negativo"),
+    // 0 / empty = no special limit (only stock caps the quantity).
+    max_per_order: z.coerce
+      .number()
+      .int()
+      .min(0, "No puede ser negativo")
+      .max(9999)
+      .optional(),
     sku: z.string().trim().max(60).optional().or(z.literal("")),
     is_active: z.boolean().default(true),
     is_featured: z.boolean().default(false),

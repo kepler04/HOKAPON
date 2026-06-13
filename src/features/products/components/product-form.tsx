@@ -24,11 +24,14 @@ interface ProductFormProps {
     price: number;
     compare_price: number | null;
     stock: number;
+    max_per_order: number | null;
     sku: string | null;
     is_active: boolean;
     is_featured: boolean;
   };
 }
+
+const LOW_STOCK = 5;
 
 export function ProductForm({ categories, product }: ProductFormProps) {
   const router = useRouter();
@@ -53,11 +56,18 @@ export function ProductForm({ categories, product }: ProductFormProps) {
           price: product.price,
           compare_price: product.compare_price,
           stock: product.stock,
+          max_per_order: product.max_per_order ?? 0,
           sku: product.sku ?? "",
           is_active: product.is_active,
           is_featured: product.is_featured,
         }
-      : { is_active: true, is_featured: false, stock: 0, price: 0 },
+      : {
+          is_active: true,
+          is_featured: false,
+          stock: 0,
+          price: 0,
+          max_per_order: 0,
+        },
   });
 
   const nameValue = watch("name");
@@ -148,6 +158,35 @@ export function ProductForm({ categories, product }: ProductFormProps) {
           <label htmlFor="stock" className={field}>Stock</label>
           <Input id="stock" type="number" min="0" {...register("stock")} />
           {errors.stock && <p className="mt-1 text-xs text-destructive">{errors.stock.message}</p>}
+          {Number(watch("stock")) > 0 &&
+            Number(watch("stock")) <= LOW_STOCK && (
+              <p className="mt-1.5 flex items-center gap-1 text-xs font-semibold text-accent">
+                ⚠️ Stock bajo: quedan {Number(watch("stock"))}. Considera bajar el
+                “Máximo por pedido”.
+              </p>
+            )}
+        </div>
+
+        <div>
+          <label htmlFor="max_per_order" className={field}>
+            Máximo por pedido{" "}
+            <span className="text-muted-foreground">(0 = sin límite)</span>
+          </label>
+          <Input
+            id="max_per_order"
+            type="number"
+            min="0"
+            placeholder="0"
+            {...register("max_per_order")}
+          />
+          {errors.max_per_order && (
+            <p className="mt-1 text-xs text-destructive">
+              {errors.max_per_order.message}
+            </p>
+          )}
+          <p className="mt-1.5 text-xs text-muted-foreground">
+            Tope de unidades que un cliente puede llevar en un solo pedido.
+          </p>
         </div>
 
         <div className="flex items-center gap-6 sm:col-span-2">

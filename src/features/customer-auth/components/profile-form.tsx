@@ -2,11 +2,12 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { Loader2, Save, KeyRound } from "lucide-react";
+import { Loader2, Save, KeyRound, ShieldCheck, CheckCircle2 } from "lucide-react";
 import { toast } from "sonner";
 import {
   saveCustomerProfile,
   changeCustomerPassword,
+  verifyCurrentPassword,
 } from "@/features/customer-auth/actions";
 import type { CustomerProfile } from "@/types/database.types";
 
@@ -22,6 +23,11 @@ export function ProfileForm({ email, profile, canChangePassword }: Props) {
   const [busy, setBusy] = useState(false);
   const [pwBusy, setPwBusy] = useState(false);
   const [pwMsg, setPwMsg] = useState<string | null>(null);
+  // Two-step password change: verify the current password first, then reveal
+  // the new-password fields.
+  const [verifying, setVerifying] = useState(false);
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [verified, setVerified] = useState(false);
 
   async function onSave(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -44,11 +50,27 @@ export function ProfileForm({ email, profile, canChangePassword }: Props) {
     router.refresh();
   }
 
+  async function onVerify(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setPwMsg(null);
+    if (!currentPassword) {
+      setPwMsg("Ingresa tu contraseña actual.");
+      return;
+    }
+    setVerifying(true);
+    const r = await verifyCurrentPassword(currentPassword);
+    setVerifying(false);
+    if (!r.ok) {
+      setPwMsg(r.error);
+      return;
+    }
+    setVerified(true); // reveal the new-password fields
+  }
+
   async function onChangePassword(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setPwMsg(null);
     const fd = new FormData(e.currentTarget);
-    const currentPassword = String(fd.get("current_password") ?? "");
     const password = String(fd.get("password") ?? "");
     const confirm = String(fd.get("confirm") ?? "");
     if (password !== confirm) {
@@ -66,6 +88,9 @@ export function ProfileForm({ email, profile, canChangePassword }: Props) {
       return;
     }
     toast.success("Contraseña actualizada");
+    // Reset back to step 1.
+    setVerified(false);
+    setCurrentPassword("");
     (e.target as HTMLFormElement).reset();
   }
 
@@ -197,67 +222,111 @@ export function ProfileForm({ email, profile, canChangePassword }: Props) {
               {pwMsg}
             </p>
           )}
-          <form onSubmit={onChangePassword} className="mt-4 space-y-4">
-            <div>
-              <label htmlFor="pw-current" className={label}>
-                Contraseña actual
-              </label>
-              <input
-                id="pw-current"
-                name="current_password"
-                type="password"
-                autoComplete="current-password"
-                placeholder="Tu contraseña actual"
-                required
-                className={input}
-              />
-            </div>
-            <div className="grid gap-4 sm:grid-cols-2">
+          {/* Step 1: verify current password */}
+          {!verified ? (
+            <form onSubmit={onVerify} className="mt-4 space-y-4">
               <div>
-                <label htmlFor="pw-new" className={label}>
-                  Nueva contraseña
+                <label htmlFor="pw-current" className={label}>
+                  Contraseña actual
                 </label>
                 <input
-                  id="pw-new"
-                  name="password"
+                  id="pw-current"
+                  name="current_password"
                   type="password"
-                  autoComplete="new-password"
-                  placeholder="Mínimo 6 caracteres"
+                  autoComplete="current-password"
+                  placeholder="Tu contraseña actual"
+                  value={currentPassword}
+                  onChange={(e) => setCurrentPassword(e.target.value)}
                   required
                   className={input}
                 />
+                <p className="mt-1.5 text-xs text-muted-foreground">
+                  Por seguridad, confirma tu contraseña actual antes de cambiarla.
+                </p>
               </div>
-              <div>
-                <label htmlFor="pw-confirm" className={label}>
-                  Confirmar
-                </label>
-                <input
-                  id="pw-confirm"
-                  name="confirm"
-                  type="password"
-                  autoComplete="new-password"
-                  placeholder="Repite la contraseña"
-                  required
-                  className={input}
-                />
+              <button
+                type="submit"
+                disabled={verifying}
+                className="flex h-12 items-center justify-center gap-2 rounded-xl bg-accent px-6 text-sm font-semibold text-accent-foreground shadow-[0_8px_24px_-8px_hsl(351_84%_49%/0.7)] transition-all hover:brightness-105 disabled:opacity-60"
+              >
+                {verifying ? (
+                  <>
+                    <Loader2 className="h-5 w-5 animate-spin" /> Verificando…
+                  </>
+                ) : (
+                  <>
+                    <ShieldCheck className="h-5 w-5" /> Verificar contraseña
+                  </>
+                )}
+              </button>
+            </form>
+          ) : (
+            /* Step 2: set the new password */
+            <form onSubmit={onChangePassword} className="mt-4 space-y-4">
+              <p className="flex items-center gap-2 rounded-2xl bg-mint/10 px-4 py-2.5 text-sm text-mint">
+                <CheckCircle2 className="h-4 w-4 shrink-0" /> Contraseña
+                verificada. Ahora ingresa tu nueva contraseña.
+              </p>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div>
+                  <label htmlFor="pw-new" className={label}>
+                    Nueva contraseña
+                  </label>
+                  <input
+                    id="pw-new"
+                    name="password"
+                    type="password"
+                    autoComplete="new-password"
+                    placeholder="Mínimo 6 caracteres"
+                    required
+                    className={input}
+                  />
+                </div>
+                <div>
+                  <label htmlFor="pw-confirm" className={label}>
+                    Confirmar
+                  </label>
+                  <input
+                    id="pw-confirm"
+                    name="confirm"
+                    type="password"
+                    autoComplete="new-password"
+                    placeholder="Repite la contraseña"
+                    required
+                    className={input}
+                  />
+                </div>
               </div>
-            </div>
-            <button
-              type="submit"
-              disabled={pwBusy}
-              className="flex h-12 items-center justify-center gap-2 rounded-xl border-2 border-accent px-6 text-sm font-semibold text-accent transition-colors hover:bg-accent hover:text-accent-foreground disabled:opacity-60"
-            >
-              {pwBusy ? (
-                <>
-                  <Loader2 className="h-5 w-5 animate-spin" /> Guardando…
-                </>
-              ) : (
-                <>
-                  <KeyRound className="h-5 w-5" /> Cambiar contraseña
-                </>
-              )}
-            </button>
-          </form>
+              <div className="flex flex-wrap gap-2">
+                <button
+                  type="submit"
+                  disabled={pwBusy}
+                  className="flex h-12 items-center justify-center gap-2 rounded-xl bg-accent px-6 text-sm font-semibold text-accent-foreground shadow-[0_8px_24px_-8px_hsl(351_84%_49%/0.7)] transition-all hover:brightness-105 disabled:opacity-60"
+                >
+                  {pwBusy ? (
+                    <>
+                      <Loader2 className="h-5 w-5 animate-spin" /> Guardando…
+                    </>
+                  ) : (
+                    <>
+                      <KeyRound className="h-5 w-5" /> Cambiar contraseña
+                    </>
+                  )}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setVerified(false);
+                    setCurrentPassword("");
+                    setPwMsg(null);
+                  }}
+                  className="flex h-12 items-center justify-center rounded-xl border border-border px-6 text-sm font-semibold text-muted-foreground transition-colors hover:bg-secondary"
+                >
+                  Cancelar
+                </button>
+              </div>
+            </form>
+          )}
         </section>
       )}
     </div>

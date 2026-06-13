@@ -121,6 +121,28 @@ export async function saveCustomerProfile(
   return { ok: true };
 }
 
+/** Verify the current customer's password without changing anything. */
+export async function verifyCurrentPassword(
+  currentPassword: string,
+): Promise<AuthResult> {
+  if (!currentPassword) {
+    return { ok: false, error: "Ingresa tu contraseña actual." };
+  }
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user?.email) {
+    return { ok: false, error: "Inicia sesión para continuar." };
+  }
+  const { error } = await supabase.auth.signInWithPassword({
+    email: user.email,
+    password: currentPassword,
+  });
+  if (error) return { ok: false, error: "La contraseña actual es incorrecta." };
+  return { ok: true };
+}
+
 /** Change the current customer's password. */
 export async function changeCustomerPassword(
   input: ChangePasswordInput,

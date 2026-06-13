@@ -95,6 +95,7 @@ export interface Database {
           price: number;
           compare_price: number | null;
           stock: number;
+          max_per_order: number | null;
           sku: string | null;
           is_active: boolean;
           is_featured: boolean;
@@ -110,6 +111,7 @@ export interface Database {
           price: number;
           compare_price?: number | null;
           stock?: number;
+          max_per_order?: number | null;
           sku?: string | null;
           is_active?: boolean;
           is_featured?: boolean;
