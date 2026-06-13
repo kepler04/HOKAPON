@@ -1,83 +1,146 @@
-# Tienda YienKid 🛒
+# HOKAPON
 
-Demo profesional de ecommerce — Next.js 15 · TypeScript · Tailwind · Supabase · Vercel.
-Pago manual (Yape / Plin / transferencia) coordinado por WhatsApp.
+Ecommerce en Next.js 15, TypeScript, Tailwind CSS, Supabase y Vercel.
+La tienda usa pago manual con Yape, Plin o transferencia y coordina el
+comprobante por WhatsApp.
 
-> Arquitectura completa en [`ECOMMERCE_MASTER_PLAN.md`](./ECOMMERCE_MASTER_PLAN.md).
+> Guia operativa completa: [docs/operacion-y-despliegue.md](./docs/operacion-y-despliegue.md)
 
-## Estado actual
+## Estado Actual
 
-✅ **Fase 0 (Setup)** y **Fase 1 (Base de datos)** completas. El proyecto compila
-y construye (`next build` ✓). La tienda pública (Fase 2) aún no está construida.
+El proyecto ya incluye:
 
-## Puesta en marcha
+- Tienda publica con home, productos, categorias, busqueda, favoritos y carrito.
+- Checkout con cuenta de cliente o invitado.
+- Pagina de pedido confirmado con resumen, numero de pedido, datos de pago y WhatsApp.
+- Logos estaticos para metodos de pago: Yape, Plin, BCP y BBVA.
+- Cuentas de cliente con login, Google OAuth, recuperacion y cambio de contrasena.
+- Panel admin protegido con dashboard, productos, categorias, inventario, pedidos y pagos.
+- Supabase con migraciones versionadas hasta `0014_payment_methods.sql`.
+- Deploy preparado para Vercel.
 
-### 1. Instalar dependencias
+## Requisitos
+
+- Node.js compatible con Next.js 15.
+- Proyecto Supabase creado.
+- Variables de entorno en `.env.local`.
+
+## Instalacion Local
+
 ```bash
 npm install
+npm run dev
 ```
 
-### 2. Crear el proyecto Supabase y aplicar la BD
-Sigue [`supabase/README.md`](./supabase/README.md):
-- Crea el proyecto en supabase.com.
-- Ejecuta las migraciones `0001` → `0005` (SQL Editor o `supabase db push`).
-- Crea el usuario admin y promuévelo a `role = 'admin'`.
+Abrir:
 
-### 3. Configurar variables de entorno
-Copia los valores de tu proyecto Supabase en `.env.local`
-(plantilla documentada en [`.env.example`](./.env.example)):
-```bash
-NEXT_PUBLIC_SUPABASE_URL=...
-NEXT_PUBLIC_SUPABASE_ANON_KEY=...
-SUPABASE_SERVICE_ROLE_KEY=...        # ⚠️ solo servidor
-NEXT_PUBLIC_WHATSAPP_PHONE=51...     # tu número de admin
-# + datos de Yape / Plin / banco
-```
-
-### 4. (Opcional) Regenerar los tipos de la BD
-```bash
-npm run db:types   # requiere supabase CLI enlazado
-```
-Hasta entonces, `src/types/database.types.ts` es un placeholder fiel al esquema.
-
-### 5. Arrancar
-```bash
-npm run dev        # http://localhost:3000
+```text
+http://localhost:3000
 ```
 
 ## Scripts
-| Script | Descripción |
-|--------|-------------|
-| `npm run dev` | Servidor de desarrollo |
-| `npm run build` | Build de producción |
+
+| Script | Uso |
+| --- | --- |
+| `npm run dev` | Servidor local |
+| `npm run build` | Build de produccion |
 | `npm run start` | Servir build |
 | `npm run lint` | ESLint |
-| `npm run typecheck` | `tsc --noEmit` |
-| `npm run db:types` | Generar tipos desde Supabase |
+| `npm run typecheck` | TypeScript sin emitir archivos |
+| `npm run db:types` | Generar tipos desde Supabase local |
 
-## Estructura
-```
-src/
-├── app/              # rutas (App Router)
-│   ├── page.tsx      # home (placeholder Fase 0)
-│   ├── login/        # login admin (placeholder; Fase 4)
-│   └── auth/         # callback + signout (route handlers)
-├── lib/
-│   ├── supabase/     # client / server / admin / middleware
-│   ├── constants.ts  # estados, métodos de pago, datos de pago
-│   ├── format.ts     # moneda, fechas
-│   ├── whatsapp.ts   # builder del mensaje wa.me
-│   └── utils.ts      # cn(), slugify()
-├── schemas/          # validación Zod (checkout, product, category)
-├── store/            # (Fase 3) carrito Zustand
-└── types/            # database.types.ts + tipos de dominio
-middleware.ts         # guard de /admin + refresh de sesión
-supabase/migrations/  # SQL versionado (0001–0005)
+## Variables de Entorno
+
+Usa `.env.example` como plantilla:
+
+```bash
+NEXT_PUBLIC_SUPABASE_URL=...
+NEXT_PUBLIC_SUPABASE_ANON_KEY=...
+SUPABASE_SERVICE_ROLE_KEY=...
+NEXT_PUBLIC_STORE_NAME=HOKAPON
+NEXT_PUBLIC_WHATSAPP_PHONE=51...
+NEXT_PUBLIC_CURRENCY_SYMBOL=S/
 ```
 
-## Seguridad (ya implementado en la base)
-- RLS activado en todas las tablas (`supabase/migrations/0003_rls_policies.sql`).
-- `service_role` aislado en el servidor (`import "server-only"` en `lib/supabase/admin.ts`).
-- Middleware protege `/admin/**` verificando sesión + rol.
-- Bucket de comprobantes privado; bucket de imágenes público de solo lectura.
-- Self-signup deshabilitado (admins provisionados manualmente).
+Notas importantes:
+
+- `SUPABASE_SERVICE_ROLE_KEY` nunca debe llevar `NEXT_PUBLIC_`.
+- Las variables `NEXT_PUBLIC_*` quedan embebidas en el build de Next.js. Si cambian en Vercel, hay que redeployar.
+- No subir `.env.local` ni archivos con secretos.
+
+## Supabase
+
+Aplicar las migraciones en orden desde `supabase/migrations` o usar:
+
+```bash
+supabase db push
+```
+
+Ver detalles en [supabase/README.md](./supabase/README.md).
+
+## Login
+
+Hay dos flujos distintos:
+
+- Cliente: `/cuenta`, usa correo y contrasena. Tambien soporta Google OAuth y recuperacion de contrasena.
+- Admin: `/login`, usa nombre de usuario. Internamente `yienkid` se convierte en `yienkid@yienkid.local`.
+
+El panel `/admin/**` esta protegido por middleware y requiere rol `admin` o `staff` en `profiles`.
+
+## Pagos
+
+Los metodos se administran desde:
+
+```text
+/admin/pagos
+```
+
+La pagina `/checkout/exito/[orderNumber]` muestra solo metodos activos desde la tabla `payment_methods`.
+
+Los logos son estaticos:
+
+| Texto detectado | Imagen |
+| --- | --- |
+| `Yape` | `public/pagos/yape.png` |
+| `Plin` | `public/pagos/plin.png` |
+| `BCP` | `public/pagos/bcp.webp` |
+| `BBVA` | `public/pagos/bbva.png` |
+
+Si agregas otro metodo con logo fijo, agrega la imagen en `public/pagos` y actualiza el mapper en `src/features/checkout/components/payment-methods.tsx`.
+
+## Checkout
+
+Al confirmar pedido:
+
+1. El cliente ve un overlay inmediato de preparacion.
+2. El servidor valida productos, stock, limites y precios reales.
+3. Se crea el pedido y sus items en Supabase.
+4. Se redirige con `router.replace` a `/checkout/exito/[orderNumber]`.
+5. El carrito se limpia al entrar a la pagina de confirmacion.
+
+Esto evita que se vea una pantalla intermedia de checkout vacio.
+
+## Vercel
+
+Cada push a `main` despliega en Vercel si el proyecto esta conectado al repo.
+
+Checklist:
+
+- Variables de entorno cargadas en Vercel.
+- Supabase Auth con URLs de redireccion configuradas.
+- Migraciones aplicadas en la base de produccion.
+- Redeploy despues de cambiar variables `NEXT_PUBLIC_*`.
+
+Si en produccion algo funciona en local pero no en Vercel:
+
+- Hacer hard refresh (`Ctrl + F5`).
+- Revisar que Vercel tenga las variables correctas.
+- Redeployar para regenerar el bundle.
+- Revisar URLs permitidas en Supabase Auth.
+
+## Documentacion Relacionada
+
+- [Operacion y despliegue](./docs/operacion-y-despliegue.md)
+- [Configurar Google Login](./docs/google-login-setup.md)
+- [Supabase](./supabase/README.md)
+- [Master plan historico](./ECOMMERCE_MASTER_PLAN.md)

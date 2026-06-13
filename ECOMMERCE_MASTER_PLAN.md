@@ -1,5 +1,12 @@
 # 🛒 ECOMMERCE MASTER PLAN — Tienda YienKid
 
+> **Nota de estado actual:** este documento queda como plan histórico de
+> arquitectura. La implementación actual ya incluye tienda pública, checkout,
+> cuentas de cliente, favoritos, inventario, panel admin, pagos configurables,
+> logos estáticos de pago y despliegue en Vercel. Para operar el proyecto hoy,
+> usar [`README.md`](./README.md) y
+> [`docs/operacion-y-despliegue.md`](./docs/operacion-y-despliegue.md).
+
 > **Documento de arquitectura y plan de implementación**
 > Versión 1.0 · Stack: Next.js 15 · TypeScript · Tailwind CSS · Supabase · Vercel
 > Estado: Diseño aprobado — **NO se ha escrito código aún**
