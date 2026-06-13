@@ -1,9 +1,66 @@
 "use client";
 
+import Image from "next/image";
 import { useState } from "react";
 import { Check, Copy, Wallet, Landmark } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { PaymentMethodConfig } from "@/types/database.types";
+
+type PaymentLogo = {
+  src: string;
+  alt: string;
+  titleClass: string;
+  iconClass: string;
+};
+
+function normalize(value: string) {
+  return value
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+}
+
+function getPaymentLogo(method: PaymentMethodConfig): PaymentLogo | null {
+  const text = normalize(`${method.label} ${method.bank_name ?? ""}`);
+
+  if (text.includes("yape")) {
+    return {
+      src: "/pagos/yape.png",
+      alt: "Yape",
+      titleClass: "text-violet-700",
+      iconClass: "bg-violet-50",
+    };
+  }
+
+  if (text.includes("plin")) {
+    return {
+      src: "/pagos/plin.png",
+      alt: "Plin",
+      titleClass: "text-sky-700",
+      iconClass: "bg-sky-50",
+    };
+  }
+
+  if (text.includes("bcp")) {
+    return {
+      src: "/pagos/bcp.webp",
+      alt: "BCP",
+      titleClass: "text-blue-800",
+      iconClass: "bg-blue-50",
+    };
+  }
+
+  if (text.includes("bbva")) {
+    return {
+      src: "/pagos/bbva.png",
+      alt: "BBVA",
+      titleClass: "text-blue-900",
+      iconClass: "bg-slate-50",
+    };
+  }
+
+  return null;
+}
 
 function CopyField({ label, value }: { label: string; value: string }) {
   const [copied, setCopied] = useState(false);
@@ -37,37 +94,42 @@ function CopyField({ label, value }: { label: string; value: string }) {
 }
 
 function MethodCard({
-  kind,
-  title,
+  method,
   children,
 }: {
-  kind: "wallet" | "bank";
-  title: string;
+  method: PaymentMethodConfig;
   children: React.ReactNode;
 }) {
-  const normalizedTitle = title.toLowerCase();
-  const walletTone = normalizedTitle.includes("yape")
-    ? "bg-violet-100 text-violet-700"
-    : normalizedTitle.includes("plin")
-      ? "bg-sky-100 text-sky-700"
-      : "bg-accent/10 text-accent";
+  const logo = getPaymentLogo(method);
 
   return (
     <div className="rounded-2xl border border-border bg-card p-4 shadow-[0_14px_40px_-34px_hsl(var(--foreground)/0.55)]">
       <div className="mb-3 flex items-center gap-2">
         <span
           className={cn(
-            "grid h-8 w-8 place-items-center rounded-lg",
-            kind === "bank" ? "bg-mint/10 text-mint" : walletTone,
+            "relative grid h-10 w-10 shrink-0 place-items-center overflow-hidden rounded-xl border border-border/70",
+            logo?.iconClass,
+            !logo && (method.kind === "bank" ? "bg-mint/10 text-mint" : "bg-accent/10 text-accent"),
           )}
         >
-          {kind === "bank" ? (
-            <Landmark className="h-5 w-5" />
+          {logo ? (
+            <Image
+              src={logo.src}
+              alt={logo.alt}
+              width={40}
+              height={40}
+              unoptimized
+              className="h-full w-full object-contain p-1.5"
+            />
+          ) : method.kind === "bank" ? (
+            <Landmark className="h-5 w-5" aria-hidden />
           ) : (
-            <Wallet className="h-5 w-5" />
+            <Wallet className="h-5 w-5" aria-hidden />
           )}
         </span>
-        <h3 className="font-display font-bold">{title}</h3>
+        <h3 className={cn("font-display font-bold", logo?.titleClass)}>
+          {method.label}
+        </h3>
       </div>
       <div className="space-y-2">{children}</div>
     </div>
@@ -94,7 +156,7 @@ export function PaymentMethods({
   return (
     <div className="grid gap-3">
       {methods.map((m) => (
-        <MethodCard key={m.id} kind={m.kind} title={m.label}>
+        <MethodCard key={m.id} method={m}>
           {m.kind === "wallet" ? (
             <>
               {m.number && <CopyField label="Número" value={m.number} />}
