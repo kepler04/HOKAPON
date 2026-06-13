@@ -15,6 +15,17 @@ export const customerRegisterSchema = z.object({
 export type CustomerLoginInput = z.infer<typeof customerLoginSchema>;
 export type CustomerRegisterInput = z.infer<typeof customerRegisterSchema>;
 
+/** Verify the 6-digit signup code emailed by Supabase. */
+export const verifySignupOtpSchema = z.object({
+  email: z.string().trim().email("Correo inválido"),
+  token: z
+    .string()
+    .trim()
+    .regex(/^\d{6}$/, "El código debe tener 6 dígitos"),
+});
+
+export type VerifySignupOtpInput = z.infer<typeof verifySignupOtpSchema>;
+
 /** Editable customer profile. */
 export const customerProfileSchema = z.object({
   full_name: z.string().trim().max(120).optional().or(z.literal("")),

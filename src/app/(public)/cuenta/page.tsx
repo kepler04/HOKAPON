@@ -13,10 +13,13 @@ export const metadata: Metadata = {
 export default function AccountPage() {
   return (
     <div className="flex justify-center bg-background px-4 py-10 sm:px-6">
-      {/* Centered card: image + form side by side, equal height. */}
-      <div className="grid w-full max-w-5xl overflow-hidden rounded-3xl border border-border bg-card shadow-sm lg:grid-cols-2">
-        {/* Left: brand image (same height as the form via items-stretch grid) */}
-        <div className="relative hidden bg-[#0a0e1a] lg:block">
+      {/* Centered card: image + form side by side. A fixed min-height keeps the
+          total height stable, so showing an error message does NOT stretch the
+          image column (which would re-scale the cover image — the "zoom"). */}
+      <div className="grid w-full max-w-5xl overflow-hidden rounded-3xl border border-border bg-card shadow-sm lg:min-h-[620px] lg:grid-cols-2">
+        {/* Left: brand image. Fixed height (not stretched by the grid) so the
+            cover image stays the same size regardless of the form's height. */}
+        <div className="relative hidden bg-[#0a0e1a] lg:block lg:h-[620px]">
           <Image
             src="/auth-side.png"
             alt="HOKAPON — Tecnología sin límites"

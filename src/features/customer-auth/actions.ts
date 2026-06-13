@@ -7,15 +7,29 @@ import {
   customerRegisterSchema,
   customerProfileSchema,
   changePasswordSchema,
+  verifySignupOtpSchema,
   type CustomerLoginInput,
   type CustomerRegisterInput,
   type CustomerProfileInput,
   type ChangePasswordInput,
+  type VerifySignupOtpInput,
 } from "./schemas";
 
 export type AuthResult =
   | { ok: true; needsConfirmation?: boolean }
   | { ok: false; error: string };
+
+/**
+ * Customer sign-out. Runs on the server so the auth cookies (httpOnly) are
+ * actually cleared — a browser-only signOut() leaves the SSR session alive and
+ * the header keeps showing the user as logged in.
+ */
+export async function customerSignOut(): Promise<{ ok: true }> {
+  const supabase = await createClient();
+  await supabase.auth.signOut();
+  revalidatePath("/", "layout");
+  return { ok: true };
+}
 
 /**
  * Customer sign-in (email + password). A successful login establishes a normal
@@ -82,6 +96,57 @@ export async function customerSignUp(
   // If confirmation is required, Supabase returns a user but no active session.
   const needsConfirmation = !data.session;
   return { ok: true, needsConfirmation };
+}
+
+/**
+ * Verify the 6-digit signup code that Supabase emailed. On success this
+ * establishes the session (cookies) so the user is logged in immediately —
+ * no link to click. Requires the Supabase "Confirm signup" email template to
+ * include the {{ .Token }} code (see docs/otp-signup.md).
+ */
+export async function verifySignupOtp(
+  input: VerifySignupOtpInput,
+): Promise<AuthResult> {
+  const parsed = verifySignupOtpSchema.safeParse(input);
+  if (!parsed.success) {
+    return { ok: false, error: parsed.error.issues[0]?.message ?? "Datos inválidos" };
+  }
+
+  const supabase = await createClient();
+  const { error } = await supabase.auth.verifyOtp({
+    email: parsed.data.email,
+    token: parsed.data.token,
+    type: "signup",
+  });
+
+  if (error) {
+    if (/expired/i.test(error.message)) {
+      return { ok: false, error: "El código expiró. Pide uno nuevo." };
+    }
+    return { ok: false, error: "Código incorrecto. Revísalo e intenta de nuevo." };
+  }
+
+  return { ok: true };
+}
+
+/** Re-send the signup confirmation code to the user's email. */
+export async function resendSignupOtp(email: string): Promise<AuthResult> {
+  const parsed = customerRegisterSchema.shape.email.safeParse(email);
+  if (!parsed.success) {
+    return { ok: false, error: "Correo inválido." };
+  }
+  const supabase = await createClient();
+  const { error } = await supabase.auth.resend({
+    type: "signup",
+    email: parsed.data,
+  });
+  if (error) {
+    if (/rate limit|too many/i.test(error.message)) {
+      return { ok: false, error: "Espera un momento antes de pedir otro código." };
+    }
+    return { ok: false, error: error.message };
+  }
+  return { ok: true };
 }
 
 /** Save the current customer's profile (upsert) + sync display name to Auth. */

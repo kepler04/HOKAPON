@@ -1,6 +1,5 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Loader2, Save, KeyRound, ShieldCheck, CheckCircle2 } from "lucide-react";
 import { toast } from "sonner";
@@ -19,7 +18,6 @@ interface Props {
 }
 
 export function ProfileForm({ email, profile, canChangePassword }: Props) {
-  const router = useRouter();
   const [busy, setBusy] = useState(false);
   const [pwBusy, setPwBusy] = useState(false);
   const [pwMsg, setPwMsg] = useState<string | null>(null);
@@ -47,7 +45,10 @@ export function ProfileForm({ email, profile, canChangePassword }: Props) {
       return;
     }
     toast.success("Perfil guardado");
-    router.refresh();
+    // Hard reload so the header greeting re-reads the updated display name from
+    // Auth (router.refresh() only re-renders Server Components, not the
+    // client-side header session).
+    setTimeout(() => window.location.reload(), 600);
   }
 
   async function onVerify(e: React.FormEvent<HTMLFormElement>) {

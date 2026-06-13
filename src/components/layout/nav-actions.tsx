@@ -16,6 +16,7 @@ import { useEffect, useRef, useState } from "react";
 import type { User } from "@supabase/supabase-js";
 import { useCart } from "@/store/cart";
 import { createClient } from "@/lib/supabase/client";
+import { customerSignOut } from "@/features/customer-auth/actions";
 
 /** Right-side cluster: cart (live badge), favorites (decorative),
  *  country selector and the customer auth zone (Google sign-in). */
@@ -113,9 +114,12 @@ function UserZone() {
   }, []);
 
   async function signOut() {
-    await supabase.auth.signOut();
     setOpen(false);
-    setUser(null);
+    // Clear the browser session (localStorage) AND the server cookies, then
+    // hard-reload so SSR + header come back logged out with no stale state.
+    await supabase.auth.signOut();
+    await customerSignOut();
+    window.location.assign("/");
   }
 
   // Avoid hydration flash: render a stable placeholder until ready.

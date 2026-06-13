@@ -12,9 +12,16 @@ import {
   Lock,
   Eye,
   EyeOff,
+  ShieldCheck,
+  ArrowLeft,
 } from "lucide-react";
 import { toast } from "sonner";
-import { customerSignIn, customerSignUp } from "@/features/customer-auth/actions";
+import {
+  customerSignIn,
+  customerSignUp,
+  verifySignupOtp,
+  resendSignupOtp,
+} from "@/features/customer-auth/actions";
 import { createClient } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils";
 
@@ -29,6 +36,9 @@ export function AccountForms() {
   const [busy, setBusy] = useState(false);
   const [googleBusy, setGoogleBusy] = useState(false);
   const [showPass, setShowPass] = useState(false);
+  // OTP step: when a registration needs email confirmation, we show a 6-digit
+  // code screen instead of asking the user to click an email link.
+  const [otpEmail, setOtpEmail] = useState<string | null>(null);
 
   async function handleLogin(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -67,10 +77,8 @@ export function AccountForms() {
       return;
     }
     if (r.needsConfirmation) {
-      setInfo(
-        "Te enviamos un correo para confirmar tu cuenta. Revísalo y luego inicia sesión.",
-      );
-      setTab("login");
+      // Switch to the 6-digit code screen (Supabase already emailed the code).
+      setOtpEmail(String(fd.get("email") ?? "").trim());
       return;
     }
     toast.success("¡Cuenta creada!");
@@ -98,6 +106,20 @@ export function AccountForms() {
   }
 
   const isLogin = tab === "login";
+
+  // ── OTP confirmation screen ───────────────────────────────────────────────
+  if (otpEmail) {
+    return (
+      <OtpStep
+        email={otpEmail}
+        redirectTo={redirectTo}
+        onBack={() => {
+          setOtpEmail(null);
+          setTab("login");
+        }}
+      />
+    );
+  }
 
   return (
     <div>
@@ -270,6 +292,125 @@ export function AccountForms() {
           Términos y Condiciones
         </a>
       </p>
+    </div>
+  );
+}
+
+/** Step shown after registration: enter the 6-digit code Supabase emailed. */
+function OtpStep({
+  email,
+  redirectTo,
+  onBack,
+}: {
+  email: string;
+  redirectTo: string;
+  onBack: () => void;
+}) {
+  const [code, setCode] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [resending, setResending] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  async function handleVerify(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setError(null);
+    setBusy(true);
+    const r = await verifySignupOtp({ email, token: code });
+    setBusy(false);
+    if (!r.ok) {
+      setError(r.error);
+      return;
+    }
+    toast.success("¡Cuenta confirmada!");
+    window.location.assign(redirectTo);
+  }
+
+  async function handleResend() {
+    setError(null);
+    setResending(true);
+    const r = await resendSignupOtp(email);
+    setResending(false);
+    if (!r.ok) {
+      setError(r.error);
+      return;
+    }
+    toast.success("Te enviamos un código nuevo.");
+  }
+
+  return (
+    <div>
+      <div className="mb-6 text-center">
+        <span className="mx-auto mb-4 grid h-14 w-14 place-items-center rounded-2xl bg-accent/10 text-accent">
+          <ShieldCheck className="h-7 w-7" />
+        </span>
+        <h2 className="font-display text-xl font-extrabold">Verifica tu correo</h2>
+        <p className="mx-auto mt-2 max-w-xs text-sm text-muted-foreground">
+          Te enviamos un código de 6 dígitos a{" "}
+          <span className="font-semibold text-foreground">{email}</span>.
+          Escríbelo aquí para activar tu cuenta.
+        </p>
+      </div>
+
+      {error && (
+        <p className="mb-4 rounded-2xl bg-destructive/10 px-4 py-3 text-sm text-destructive">
+          {error}
+        </p>
+      )}
+
+      <form onSubmit={handleVerify} className="space-y-4">
+        <div>
+          <label htmlFor="otp-code" className="mb-1.5 block text-sm font-medium">
+            Código de verificación
+          </label>
+          <input
+            id="otp-code"
+            name="code"
+            inputMode="numeric"
+            autoComplete="one-time-code"
+            maxLength={6}
+            placeholder="000000"
+            value={code}
+            onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
+            required
+            autoFocus
+            className="h-14 w-full rounded-xl border border-border bg-background text-center font-display text-2xl font-bold tracking-[0.5em] outline-none transition-colors focus:border-accent focus:ring-2 focus:ring-accent/20"
+          />
+        </div>
+
+        <button
+          type="submit"
+          disabled={busy || code.length !== 6}
+          className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-accent text-sm font-semibold text-accent-foreground shadow-[0_8px_24px_-8px_hsl(351_84%_49%/0.7)] transition-all hover:brightness-105 active:scale-[0.99] disabled:opacity-60"
+        >
+          {busy ? (
+            <>
+              <Loader2 className="h-5 w-5 animate-spin" /> Verificando…
+            </>
+          ) : (
+            <>
+              <CheckCircle2 className="h-5 w-5" /> Confirmar y entrar
+            </>
+          )}
+        </button>
+      </form>
+
+      <div className="mt-5 flex items-center justify-between text-sm">
+        <button
+          type="button"
+          onClick={onBack}
+          className="inline-flex items-center gap-1.5 font-medium text-muted-foreground hover:text-foreground"
+        >
+          <ArrowLeft className="h-4 w-4" /> Volver
+        </button>
+        <button
+          type="button"
+          onClick={handleResend}
+          disabled={resending}
+          className="font-semibold text-accent hover:underline disabled:opacity-60"
+        >
+          {resending ? "Enviando…" : "Reenviar código"}
+        </button>
+      </div>
     </div>
   );
 }
