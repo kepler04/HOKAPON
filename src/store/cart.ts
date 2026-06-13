@@ -15,6 +15,12 @@ interface CartState {
   subtotal: () => number;
 }
 
+/** Max units allowed for a line: the smaller of stock and the per-order limit. */
+export function cartItemCap(item: Pick<CartItem, "stock" | "maxPerOrder">): number {
+  const limit = item.maxPerOrder && item.maxPerOrder > 0 ? item.maxPerOrder : Infinity;
+  return Math.max(Math.min(item.stock, limit), 0);
+}
+
 /**
  * Client-side cart, persisted to localStorage (key: "yienkid-cart").
  *
@@ -28,21 +34,24 @@ export const useCart = create<CartState>()(
 
       addItem: (item, quantity = 1) =>
         set((state) => {
+          const cap = cartItemCap(item);
           const existing = state.items.find(
             (i) => i.productId === item.productId,
           );
           if (existing) {
-            const next = Math.min(existing.quantity + quantity, item.stock);
+            const next = Math.min(existing.quantity + quantity, cap);
             return {
               items: state.items.map((i) =>
-                i.productId === item.productId ? { ...i, quantity: next } : i,
+                i.productId === item.productId
+                  ? { ...i, ...item, quantity: next }
+                  : i,
               ),
             };
           }
           return {
             items: [
               ...state.items,
-              { ...item, quantity: Math.min(quantity, item.stock) },
+              { ...item, quantity: Math.min(quantity, cap) },
             ],
           };
         }),
@@ -57,7 +66,7 @@ export const useCart = create<CartState>()(
           items: state.items
             .map((i) =>
               i.productId === productId
-                ? { ...i, quantity: Math.max(1, Math.min(quantity, i.stock)) }
+                ? { ...i, quantity: Math.max(1, Math.min(quantity, cartItemCap(i))) }
                 : i,
             )
             .filter((i) => i.quantity > 0),

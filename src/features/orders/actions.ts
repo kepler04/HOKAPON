@@ -96,6 +96,11 @@ export async function updateOrderStatus(
     .eq("id", orderId);
 
   if (error) return { ok: false, error: error.message };
+
+  if (status === "pago_confirmado") {
+    await markLatestPaymentConfirmed(supabase, orderId);
+  }
+
   revalidatePath("/admin/pedidos");
   revalidatePath(`/admin/pedidos/${orderId}`);
   revalidatePath("/admin"); // dashboard stats
@@ -103,6 +108,33 @@ export async function updateOrderStatus(
   revalidatePath("/admin/productos");
   revalidatePath("/productos"); // public stock display
   return { ok: true };
+}
+
+async function markLatestPaymentConfirmed(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  orderId: string,
+): Promise<void> {
+  const { data: latest } = await supabase
+    .from("payments")
+    .select("id,status")
+    .eq("order_id", orderId)
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  if (!latest || latest.status === "confirmado") return;
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  await supabase
+    .from("payments")
+    .update({
+      status: "confirmado",
+      confirmed_by: user?.id ?? null,
+      confirmed_at: new Date().toISOString(),
+    })
+    .eq("id", latest.id);
 }
 
 /**

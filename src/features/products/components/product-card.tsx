@@ -124,6 +124,7 @@ export function ProductCard({
               price: product.price,
               imageUrl: product.imageUrl,
               stock: product.stock,
+              maxPerOrder: product.max_per_order,
             }}
           />
         </div>

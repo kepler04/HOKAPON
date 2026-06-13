@@ -7,6 +7,8 @@ export interface CartItem {
   imageUrl: string | null;
   quantity: number;
   stock: number;
+  /** Per-order purchase limit (null/0 = only stock caps it). */
+  maxPerOrder?: number | null;
 }
 
 /** Result returned by the createOrder server action. */

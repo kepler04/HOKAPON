@@ -27,6 +27,7 @@ interface RawFav {
     price: number;
     compare_price: number | null;
     stock: number;
+    max_per_order: number | null;
     is_featured: boolean;
     is_active: boolean;
     product_images: { url: string; is_primary: boolean }[] | null;
@@ -46,7 +47,7 @@ export async function getFavoriteProducts(): Promise<ProductCardData[]> {
   const { data, error } = await supabase
     .from("favorites")
     .select(
-      "product_id,products(id,name,slug,price,compare_price,stock,is_featured,is_active,product_images(url,is_primary),categories(slug,name))",
+      "product_id,products(id,name,slug,price,compare_price,stock,max_per_order,is_featured,is_active,product_images(url,is_primary),categories(slug,name))",
     )
     .eq("user_id", user.id)
     .order("created_at", { ascending: false });
@@ -66,6 +67,7 @@ export async function getFavoriteProducts(): Promise<ProductCardData[]> {
         price: p.price,
         compare_price: p.compare_price,
         stock: p.stock,
+        max_per_order: p.max_per_order ?? null,
         is_featured: p.is_featured,
         imageUrl: primary
           ? `${base}/storage/v1/object/public/${STORAGE_BUCKETS.PRODUCTS}/${primary.url}`

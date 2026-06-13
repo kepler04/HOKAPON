@@ -131,6 +131,7 @@ export default async function ProductDetailPage({ params }: Props) {
                 price: product.price,
                 imageUrl: primaryImageUrl,
                 stock: product.stock,
+                maxPerOrder: product.max_per_order,
               }}
               maxPerOrder={product.max_per_order}
             />

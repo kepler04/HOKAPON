@@ -3,6 +3,7 @@ import type {
   OrderItem,
   Payment,
   OrderStatus,
+  PaymentStatus,
 } from "@/types/database.types";
 
 export type {
@@ -10,6 +11,7 @@ export type {
   OrderItem,
   Payment,
   OrderStatus,
+  PaymentStatus,
 } from "@/types/database.types";
 
 /** An order with its line items joined. */

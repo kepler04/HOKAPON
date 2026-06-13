@@ -1,6 +1,7 @@
 import "server-only";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { STORAGE_BUCKETS } from "@/lib/constants";
 import type {
   Order,
   OrderDetail,
@@ -114,6 +115,18 @@ export async function getOrderById(id: string): Promise<OrderDetail | null> {
 
   if (error) throw error;
   return (data as OrderDetail | null) ?? null;
+}
+
+export async function getPaymentProofSignedUrl(
+  proofPath: string,
+): Promise<string | null> {
+  const supabase = createAdminClient();
+  const { data, error } = await supabase.storage
+    .from(STORAGE_BUCKETS.PROOFS)
+    .createSignedUrl(proofPath, 60 * 60);
+
+  if (error) return null;
+  return data.signedUrl;
 }
 
 export interface OrderItemWithImage {

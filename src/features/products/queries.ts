@@ -31,6 +31,7 @@ function toCardData(p: {
   price: number;
   compare_price: number | null;
   stock: number;
+  max_per_order?: number | null;
   is_featured: boolean;
   product_images?: { url: string; is_primary: boolean }[] | null;
   categories?: CategoryRef;
@@ -49,6 +50,7 @@ function toCardData(p: {
     price: p.price,
     compare_price: p.compare_price,
     stock: p.stock,
+    max_per_order: p.max_per_order ?? null,
     is_featured: p.is_featured,
     imageUrl,
     categorySlug: cat?.slug ?? null,
@@ -65,7 +67,7 @@ export async function getFeaturedProducts(
   const { data, error } = await supabase
     .from("products")
     .select(
-      "id,name,slug,price,compare_price,stock,is_featured,categories(slug,name),product_images(url,is_primary)",
+      "id,name,slug,price,compare_price,stock,max_per_order,is_featured,categories(slug,name),product_images(url,is_primary)",
     )
     .eq("is_active", true)
     .eq("is_featured", true)
@@ -86,7 +88,7 @@ export async function getProducts(opts?: {
   let query = supabase
     .from("products")
     .select(
-      "id,name,slug,price,compare_price,stock,is_featured,categories!inner(slug,name),product_images(url,is_primary)",
+      "id,name,slug,price,compare_price,stock,max_per_order,is_featured,categories!inner(slug,name),product_images(url,is_primary)",
     )
     .eq("is_active", true);
 
@@ -181,7 +183,7 @@ export async function searchProducts(
   const { data, error } = await supabase
     .from("products")
     .select(
-      "id,name,slug,price,compare_price,stock,is_featured,categories(slug,name),product_images(url,is_primary)",
+      "id,name,slug,price,compare_price,stock,max_per_order,is_featured,categories(slug,name),product_images(url,is_primary)",
     )
     .eq("is_active", true)
     .textSearch("name", term, { type: "websearch", config: "spanish" })

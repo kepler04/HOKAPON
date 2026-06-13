@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Minus, Plus, Trash2 } from "lucide-react";
-import { useCart } from "@/store/cart";
+import { useCart, cartItemCap } from "@/store/cart";
 import { formatPrice } from "@/lib/format";
 import type { CartItem } from "@/features/checkout/types";
 
@@ -11,6 +11,12 @@ import type { CartItem } from "@/features/checkout/types";
 export function CartLine({ item }: { item: CartItem }) {
   const setQuantity = useCart((s) => s.setQuantity);
   const removeItem = useCart((s) => s.removeItem);
+
+  const cap = cartItemCap(item);
+  const atLimit = item.quantity >= cap;
+  // True when the limit comes from the per-order cap (not just low stock).
+  const limitedByOrder =
+    !!item.maxPerOrder && item.maxPerOrder > 0 && cap === item.maxPerOrder;
 
   return (
     <div className="flex gap-4 py-4">
@@ -69,7 +75,7 @@ export function CartLine({ item }: { item: CartItem }) {
             </span>
             <button
               onClick={() => setQuantity(item.productId, item.quantity + 1)}
-              disabled={item.quantity >= item.stock}
+              disabled={atLimit}
               aria-label="Aumentar"
               className="grid h-full w-9 place-items-center rounded-r-full hover:bg-secondary disabled:opacity-40"
             >
@@ -80,6 +86,14 @@ export function CartLine({ item }: { item: CartItem }) {
             {formatPrice(item.price * item.quantity)}
           </span>
         </div>
+
+        {atLimit && (
+          <p className="mt-1.5 text-xs text-muted-foreground">
+            {limitedByOrder
+              ? `Máximo ${cap} por pedido`
+              : `Solo quedan ${cap} en stock`}
+          </p>
+        )}
       </div>
     </div>
   );

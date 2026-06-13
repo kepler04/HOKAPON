@@ -20,6 +20,7 @@ export interface ProductCardData {
   price: number;
   compare_price: number | null;
   stock: number;
+  max_per_order: number | null;
   is_featured: boolean;
   imageUrl: string | null;
   categorySlug: string | null;
