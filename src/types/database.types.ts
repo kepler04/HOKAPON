@@ -166,6 +166,7 @@ export interface Database {
           subtotal: number;
           total: number;
           notes: string | null;
+          stock_committed: boolean;
           created_at: string;
           updated_at: string;
         };
@@ -180,6 +181,7 @@ export interface Database {
           subtotal?: number;
           total?: number;
           notes?: string | null;
+          stock_committed?: boolean;
           created_at?: string;
           updated_at?: string;
         };
@@ -258,7 +260,16 @@ export interface Database {
       };
     };
     Views: { [_ in never]: never };
-    Functions: { [_ in never]: never };
+    Functions: {
+      commit_order_stock: {
+        Args: { p_order_id: string };
+        Returns: undefined;
+      };
+      restore_order_stock: {
+        Args: { p_order_id: string };
+        Returns: undefined;
+      };
+    };
     Enums: { [_ in never]: never };
   };
 }

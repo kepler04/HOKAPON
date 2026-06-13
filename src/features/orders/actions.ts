@@ -42,6 +42,31 @@ export async function updateOrderStatus(
     };
   }
 
+  // Stock side-effects (atomic DB functions, idempotent via stock_committed):
+  //  • Confirming payment commits (decrements) stock — abort if insufficient.
+  //  • Cancelling restores stock if it was previously committed.
+  if (status === "pago_confirmado") {
+    const { error: stockErr } = await supabase.rpc("commit_order_stock", {
+      p_order_id: orderId,
+    });
+    if (stockErr) {
+      return {
+        ok: false,
+        error: `No se pudo confirmar: ${stockErr.message}`,
+      };
+    }
+  } else if (status === "cancelado") {
+    const { error: restoreErr } = await supabase.rpc("restore_order_stock", {
+      p_order_id: orderId,
+    });
+    if (restoreErr) {
+      return {
+        ok: false,
+        error: `No se pudo restaurar stock: ${restoreErr.message}`,
+      };
+    }
+  }
+
   const { error } = await supabase
     .from("orders")
     .update({ status })
@@ -50,5 +75,7 @@ export async function updateOrderStatus(
   if (error) return { ok: false, error: error.message };
   revalidatePath("/admin/pedidos");
   revalidatePath(`/admin/pedidos/${orderId}`);
+  revalidatePath("/admin"); // dashboard stats
+  revalidatePath("/productos"); // public stock display
   return { ok: true };
 }
