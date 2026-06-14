@@ -1,10 +1,16 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { AlertTriangle, ChevronLeft, Mail, Phone, User } from "lucide-react";
-import { getOrderById, getOrderStockStatus } from "@/features/orders/queries";
+import {
+  getOrderById,
+  getOrderStockStatus,
+  getPaymentProofSignedUrl,
+} from "@/features/orders/queries";
 import { formatPrice, formatDate } from "@/lib/format";
 import { OrderStatusBadge } from "@/features/orders/components/order-status-badge";
 import { StatusChanger } from "@/features/orders/components/status-changer";
+import { PaymentProofReview } from "@/features/orders/components/payment-proof-review";
+import { getLatestPayment } from "@/features/orders/payment-proof-utils";
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -16,6 +22,10 @@ export default async function OrderDetailPage({ params }: Props) {
   if (!order) notFound();
 
   const stockStatus = await getOrderStockStatus(id);
+  const latestPayment = getLatestPayment(order.payments);
+  const proofUrl = latestPayment?.proof_url
+    ? await getPaymentProofSignedUrl(latestPayment.proof_url)
+    : null;
   const hasShortage = stockStatus.shortages.length > 0;
   // The stock warning only matters while the order hasn't been paid/committed.
   const showStockWarning =
@@ -88,6 +98,14 @@ export default async function OrderDetailPage({ params }: Props) {
           hasShortage={showStockWarning}
         />
       </section>
+
+      <PaymentProofReview
+        orderId={order.id}
+        orderStatus={order.status}
+        latestPayment={latestPayment}
+        proofUrl={proofUrl}
+        hasShortage={showStockWarning}
+      />
 
       <div className="grid gap-6 md:grid-cols-[1fr_300px]">
         {/* Items */}

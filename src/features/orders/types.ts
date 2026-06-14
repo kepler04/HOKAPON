@@ -3,7 +3,6 @@ import type {
   OrderItem,
   Payment,
   OrderStatus,
-  PaymentStatus,
 } from "@/types/database.types";
 
 export type {

@@ -13,6 +13,11 @@ const supabaseHost = supabaseUrl ? new URL(supabaseUrl).hostname : undefined;
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
+  experimental: {
+    serverActions: {
+      bodySizeLimit: "5mb",
+    },
+  },
   images: {
     remotePatterns: [
       // Specific project host (if known at build time).
@@ -23,6 +28,11 @@ const nextConfig: NextConfig = {
               hostname: supabaseHost,
               pathname: "/storage/v1/object/public/**",
             },
+            {
+              protocol: "https" as const,
+              hostname: supabaseHost,
+              pathname: "/storage/v1/object/sign/**",
+            },
           ]
         : []),
       // Fallback: any Supabase project storage host.
@@ -30,6 +40,11 @@ const nextConfig: NextConfig = {
         protocol: "https" as const,
         hostname: "*.supabase.co",
         pathname: "/storage/v1/object/public/**",
+      },
+      {
+        protocol: "https" as const,
+        hostname: "*.supabase.co",
+        pathname: "/storage/v1/object/sign/**",
       },
       // Google account avatars (OAuth sign-in).
       {

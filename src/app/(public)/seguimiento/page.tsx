@@ -23,6 +23,8 @@ import { EmptyState } from "@/components/shared/empty-state";
 import { TrackOrderForm } from "@/features/orders/components/track-order-form";
 import { OrderTimeline } from "@/features/orders/components/order-timeline";
 import { OrderStatusBadge } from "@/features/orders/components/order-status-badge";
+import { PaymentProofUploader } from "@/features/orders/components/payment-proof-uploader";
+import { getLatestPayment } from "@/features/orders/payment-proof-utils";
 
 export const metadata: Metadata = {
   title: "Seguimiento de pedido",
@@ -57,6 +59,7 @@ export default async function TrackingPage({ searchParams }: Props) {
           line_total: item.line_total,
           imageUrl: null,
         })) ?? []);
+  const latestPayment = order ? getLatestPayment(order.payments) : undefined;
   const whatsappPhone = WHATSAPP_PHONE.replace(/\D/g, "");
   const fallbackWaUrl = `https://wa.me/${whatsappPhone}`;
   const waUrl = order
@@ -208,6 +211,24 @@ export default async function TrackingPage({ searchParams }: Props) {
           </div>
 
           <aside className="h-fit space-y-6 lg:sticky lg:top-28">
+            <section className="rounded-[1.4rem] border border-border bg-card p-5">
+              <h2 className="font-display text-lg font-bold">
+                Comprobante de pago
+              </h2>
+              <p className="mt-2 text-sm text-muted-foreground">
+                Si ya pagaste, sube la captura para que podamos revisarla.
+              </p>
+              <div className="mt-5">
+                <PaymentProofUploader
+                  orderNumber={order.order_number}
+                  contact={contact}
+                  orderStatus={order.status}
+                  proofStatus={latestPayment?.status}
+                  hasProof={!!latestPayment?.proof_url}
+                />
+              </div>
+            </section>
+
             <section className="rounded-[1.4rem] border border-mint/20 bg-mint/5 p-5">
               <h2 className="font-display text-lg font-bold">
                 Necesitas ayuda?

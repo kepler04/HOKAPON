@@ -87,6 +87,17 @@ http://localhost:3000/cuenta/nueva-clave
 
 `/cuenta/nueva-clave` es necesario para recuperacion de contrasena.
 
+## Correos de Auth
+
+El envio integrado de Supabase Auth es solo para pruebas y tiene limite bajo.
+Para produccion, configurar un proveedor SMTP propio en Authentication >
+Settings > SMTP Settings.
+
+Opciones economicas recomendadas:
+
+- Brevo para SMTP de confirmacion y recuperacion.
+- Resend si luego se quieren emails transaccionales personalizados.
+
 ## Metodos de Pago
 
 La tabla `payment_methods` controla lo que aparece en
@@ -111,4 +122,6 @@ detectan por `label` o `bank_name`.
 - `service_role` solo se usa en servidor.
 - El cliente nunca envia precios confiables; el servidor recalcula total.
 - `/admin/**` requiere sesion y rol `admin` o `staff`.
-- Los comprobantes se coordinan por WhatsApp; no hay subida publica de comprobantes.
+- Los comprobantes se guardan en el bucket privado `payment-proofs`.
+- La subida publica usa Server Actions con `service_role`; no hay lectura publica del bucket.
+- En `/seguimiento`, el pedido se valida con numero de pedido + correo/telefono.

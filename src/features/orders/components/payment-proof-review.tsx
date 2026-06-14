@@ -139,6 +139,16 @@ export function PaymentProofReview({
         )}
       </div>
 
+      {canReview && hasShortage && (
+        <div className="mt-4 flex items-start gap-2 rounded-2xl border border-destructive/25 bg-destructive/5 p-4 text-sm text-destructive">
+          <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
+          <p>
+            Este pedido tiene faltante de stock. Si confirmas el pago, te
+            pediremos confirmacion antes de dejar stock en negativo.
+          </p>
+        </div>
+      )}
+
       {canReview && (
         <div className="mt-5 flex flex-wrap justify-end gap-2">
           <Button

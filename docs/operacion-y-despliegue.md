@@ -95,6 +95,18 @@ Usos:
 - `/auth/callback`: Google OAuth y confirmaciones/callbacks generales.
 - `/cuenta/nueva-clave`: recuperacion de contrasena de clientes.
 
+### Envio de correos Auth
+
+El proveedor de email integrado de Supabase es solo para pruebas y tiene limite
+bajo. Para produccion, configurar Supabase Auth con Custom SMTP.
+
+Opciones recomendadas para HOKAPON:
+
+- Brevo: SMTP gratis con buen margen diario para confirmaciones y recuperacion.
+- Resend: buena opcion para emails transaccionales personalizados desde codigo.
+
+En Supabase se configura en Authentication > Settings > SMTP Settings.
+
 ## Login de Cliente
 
 Ruta:
@@ -153,10 +165,14 @@ Uso recomendado:
 - Abrir WhatsApp desde la fila para escribir al cliente con el numero de pedido.
 - Copiar el numero de pedido desde la fila cuando se coordine por chat.
 - Avanzar estado desde la fila solo para casos normales.
+- Abrir el detalle para revisar la imagen del comprobante, confirmar o rechazar.
 
 Regla importante: al avanzar a `pago_confirmado`, la app intenta descontar stock.
 Si no hay stock suficiente, la accion rapida se detiene y debes abrir el detalle
 del pedido para revisar el faltante o confirmar manualmente segun corresponda.
+
+Si confirmas un comprobante desde el detalle, se usa la misma regla de stock:
+primero intenta descontar stock y, si falta, pide confirmacion explicita.
 
 ## Pagos
 
@@ -245,7 +261,8 @@ Muestra:
 - Resumen con imagenes de productos.
 - Total a pagar.
 - Metodos de pago activos.
-- Boton de WhatsApp con mensaje prellenado.
+- Subida de comprobante de pago.
+- Boton de WhatsApp con mensaje prellenado como respaldo.
 - Link a seguimiento.
 
 ## Seguimiento de Pedido
@@ -268,10 +285,31 @@ Si ambos coinciden con el pedido, se muestra:
 - Fecha de creacion.
 - Total.
 - Productos con imagen.
+- Subida de comprobante si el pago aun no fue confirmado.
 - Boton de WhatsApp con mensaje de consulta.
 
 El lookup publico esta protegido por contacto: `getPublicOrderForTracking`
 requiere numero de pedido y correo/telefono coincidente.
+
+## Comprobantes de Pago
+
+El cliente puede subir comprobantes desde:
+
+```text
+/checkout/exito/[orderNumber]
+/seguimiento
+```
+
+Reglas:
+
+- Formatos permitidos: JPG, PNG y WEBP.
+- Tamano maximo: 5 MB.
+- Al subir, se crea un registro en `payments` con `status = pendiente`.
+- El pedido pasa a `pago_enviado`.
+- El archivo se guarda en el bucket privado `payment-proofs`.
+- El admin lo revisa en `/admin/pedidos/[id]`.
+- Si el admin confirma, el pedido pasa a `pago_confirmado` y se descuenta stock.
+- Si rechaza, el pago queda `rechazado` y el pedido vuelve a `esperando_pago`.
 
 ## Migraciones
 

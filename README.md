@@ -1,8 +1,8 @@
 # HOKAPON
 
 Ecommerce en Next.js 15, TypeScript, Tailwind CSS, Supabase y Vercel.
-La tienda usa pago manual con Yape, Plin o transferencia y coordina el
-comprobante por WhatsApp.
+La tienda usa pago manual con Yape, Plin o transferencia, subida web de
+comprobantes y WhatsApp como respaldo.
 
 > Guia operativa completa: [docs/operacion-y-despliegue.md](./docs/operacion-y-despliegue.md)
 
@@ -13,6 +13,7 @@ El proyecto ya incluye:
 - Tienda publica con home, productos, categorias, busqueda, favoritos y carrito.
 - Checkout con cuenta de cliente o invitado.
 - Pagina de pedido confirmado con resumen, numero de pedido, datos de pago y WhatsApp.
+- Subida de comprobante desde pedido confirmado y seguimiento.
 - Logos estaticos para metodos de pago: Yape, Plin, BCP y BBVA.
 - Cuentas de cliente con login, Google OAuth, recuperacion y cambio de contrasena.
 - Panel admin protegido con dashboard, productos, categorias, inventario, pedidos y pagos.
@@ -116,7 +117,8 @@ Al confirmar pedido:
 2. El servidor valida productos, stock, limites y precios reales.
 3. Se crea el pedido y sus items en Supabase.
 4. Se redirige con `router.replace` a `/checkout/exito/[orderNumber]`.
-5. El carrito se limpia al entrar a la pagina de confirmacion.
+5. El cliente sube su comprobante o lo envia por WhatsApp.
+6. El carrito se limpia al entrar a la pagina de confirmacion.
 
 Esto evita que se vea una pantalla intermedia de checkout vacio.
 
@@ -133,7 +135,8 @@ El cliente debe ingresar:
 - Numero de pedido.
 - Correo o telefono usado en la compra.
 
-La pagina muestra estado actual, timeline, total, productos y boton de WhatsApp.
+La pagina muestra estado actual, timeline, total, productos, subida de
+comprobante y boton de WhatsApp.
 El contacto es obligatorio para no exponer un pedido solo por adivinar el numero.
 
 ## Admin de Pedidos
@@ -150,6 +153,7 @@ La vista v2 incluye:
 - Busqueda por numero de pedido, cliente, correo o telefono.
 - Filtros por estado, rango de fechas y "Requiere accion".
 - Acciones rapidas por fila: ver detalle, copiar numero, abrir WhatsApp y avanzar estado.
+- En el detalle se revisa la imagen del comprobante y se confirma o rechaza.
 
 El avance rapido usa la misma Server Action del detalle del pedido. Al pasar a
 `pago_confirmado`, el sistema intenta comprometer stock; si falta stock, obliga

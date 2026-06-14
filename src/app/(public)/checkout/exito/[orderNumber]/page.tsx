@@ -20,6 +20,8 @@ import { Badge } from "@/components/ui/badge";
 import { PaymentMethods } from "@/features/checkout/components/payment-methods";
 import { WhatsAppButton } from "@/features/checkout/components/whatsapp-button";
 import { CopyOrderNumber } from "@/features/checkout/components/copy-order-number";
+import { PaymentProofUploader } from "@/features/orders/components/payment-proof-uploader";
+import { getLatestPayment } from "@/features/orders/payment-proof-utils";
 
 export const metadata: Metadata = {
   title: "Pedido confirmado",
@@ -45,6 +47,7 @@ export default async function SuccessPage({ params }: Props) {
     quantity: i.quantity,
     unit_price: i.unit_price,
   }));
+  const latestPayment = getLatestPayment(order.payments);
 
   return (
     <Container className="max-w-5xl py-8 sm:py-12">
@@ -147,24 +150,35 @@ export default async function SuccessPage({ params }: Props) {
           </div>
         </section>
 
-        {/* Step 2: WhatsApp */}
+        {/* Step 2: proof upload */}
         <section className="rounded-[1.4rem] border border-border bg-card p-5 shadow-[0_18px_60px_-48px_hsl(var(--foreground)/0.45)] sm:p-6">
           <div className="mb-3 flex items-center gap-2">
             <Badge tone="mint">Paso 2</Badge>
-            <h2 className="font-display text-lg font-bold">Envía tu comprobante</h2>
+            <h2 className="font-display text-lg font-bold">Sube tu comprobante</h2>
           </div>
           <p className="mb-5 text-sm text-muted-foreground">
-            Ya hicimos el pedido por ti. Solo envíanos la captura de tu pago por
-            WhatsApp con tu número de pedido y coordinamos la entrega.
+            Cuando termines de pagar, sube la captura aqui. Tu pedido pasara a
+            revision y podremos confirmarlo desde el panel.
           </p>
-          <WhatsAppButton
+          <PaymentProofUploader
             orderNumber={order.order_number}
-            items={items}
-            total={order.total}
+            orderStatus={order.status}
+            proofStatus={latestPayment?.status}
+            hasProof={!!latestPayment?.proof_url}
           />
           <div className="mt-4 flex items-center justify-center gap-2 rounded-2xl bg-mint/10 px-4 py-2.5 text-sm text-mint">
             <ShieldCheck className="h-4 w-4 shrink-0" />
             Tu información está segura con nosotros
+          </div>
+          <div className="mt-4 border-t border-border pt-4">
+            <p className="mb-3 text-center text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+              Tambien puedes enviarlo por WhatsApp
+            </p>
+            <WhatsAppButton
+              orderNumber={order.order_number}
+              items={items}
+              total={order.total}
+            />
           </div>
         </section>
       </div>
