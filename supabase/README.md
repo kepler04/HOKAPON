@@ -71,8 +71,10 @@ El login admin de la app usa username. Por ejemplo `yienkid` se transforma en
 
 ### Clientes
 
-Los clientes usan `/cuenta` con correo y contrasena o Google OAuth. La tabla
-`customer_profiles` guarda datos editables como nombre, telefono y direccion.
+Los clientes usan `/cuenta` con correo y contrasena o Google OAuth. El registro
+por correo queda autoconfirmado para no depender de SMTP/dominio propio en v2.
+La tabla `customer_profiles` guarda datos editables como nombre, telefono y
+direccion.
 
 ## URL Configuration
 
@@ -89,9 +91,16 @@ http://localhost:3000/cuenta/nueva-clave
 
 ## Correos de Auth
 
-El envio integrado de Supabase Auth es solo para pruebas y tiene limite bajo.
-Para produccion, configurar un proveedor SMTP propio en Authentication >
-Settings > SMTP Settings.
+El registro de clientes no envia confirmacion por correo. En Supabase Dashboard
+mantener desactivado:
+
+```text
+Authentication > Providers > Email > Confirm email
+```
+
+El envio integrado de Supabase Auth queda solo para recuperacion de contrasena.
+Si mas adelante hay dominio propio, configurar un proveedor SMTP en
+Authentication > Settings > SMTP Settings.
 
 Opciones economicas recomendadas:
 

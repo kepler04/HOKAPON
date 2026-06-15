@@ -83,7 +83,7 @@ Ver detalles en [supabase/README.md](./supabase/README.md).
 
 Hay dos flujos distintos:
 
-- Cliente: `/cuenta`, usa correo y contrasena. Tambien soporta Google OAuth y recuperacion de contrasena.
+- Cliente: `/cuenta`, usa correo y contrasena sin verificacion por email. Tambien soporta Google OAuth y recuperacion de contrasena.
 - Admin: `/login`, usa nombre de usuario. Internamente `yienkid` se convierte en `yienkid@yienkid.local`.
 
 El panel `/admin/**` esta protegido por middleware y requiere rol `admin` o `staff` en `profiles`.

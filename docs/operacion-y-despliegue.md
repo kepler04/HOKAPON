@@ -95,17 +95,28 @@ Usos:
 - `/auth/callback`: Google OAuth y confirmaciones/callbacks generales.
 - `/cuenta/nueva-clave`: recuperacion de contrasena de clientes.
 
-### Envio de correos Auth
+### Registro sin verificacion por correo
 
-El proveedor de email integrado de Supabase es solo para pruebas y tiene limite
-bajo. Para produccion, configurar Supabase Auth con Custom SMTP.
+HOKAPON v2 permite que el cliente se registre y entre sin confirmar correo.
+Esto evita depender de SMTP o dominio propio mientras la tienda esta en Vercel.
 
-Opciones recomendadas para HOKAPON:
+En Supabase Dashboard:
 
-- Brevo: SMTP gratis con buen margen diario para confirmaciones y recuperacion.
-- Resend: buena opcion para emails transaccionales personalizados desde codigo.
+```text
+Authentication > Providers > Email
+```
 
-En Supabase se configura en Authentication > Settings > SMTP Settings.
+Desactivar:
+
+```text
+Confirm email
+```
+
+La app tambien crea clientes con `email_confirm: true` desde una Server Action,
+asi que no se envia correo de confirmacion durante el registro.
+
+SMTP queda como mejora futura para recuperacion de contrasena y emails
+transaccionales cuando exista dominio propio.
 
 ## Login de Cliente
 
@@ -118,7 +129,7 @@ Ruta:
 Permite:
 
 - Iniciar sesion con correo y contrasena.
-- Registrarse como cliente.
+- Registrarse como cliente sin verificar email.
 - Continuar con Google si el proveedor esta configurado.
 - Recuperar contrasena desde `/cuenta/recuperar`.
 
